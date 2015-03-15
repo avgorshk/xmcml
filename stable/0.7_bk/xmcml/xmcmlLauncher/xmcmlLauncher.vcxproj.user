@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-nthreads 1 -i ..\test.xml -o res.mcml.out -s ..\brain_plane.surface</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <MpiDebuggerSchedulerNode>localhost/2</MpiDebuggerSchedulerNode>
+    <MpiDebuggerApplicationCommand>
+    </MpiDebuggerApplicationCommand>
+    <MpiDebuggerApplicationArguments>-nthreads 1 -i test.xml -o res.mcml.out -s brain_sphere_992.surface</MpiDebuggerApplicationArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-nthreads 2 -i ..\brain_830_sphere.xml -o res_plane_new.mcml.out -s ..\brain_sphere_992.surface</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>

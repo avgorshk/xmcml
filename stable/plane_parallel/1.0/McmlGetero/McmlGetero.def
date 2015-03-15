@@ -1,0 +1,5 @@
+LIBRARY	"McmlGetero"
+EXPORTS
+	CountMcml @1
+	GetNumberOfGPU @2
+	GetNumberOfGPUThreads @3

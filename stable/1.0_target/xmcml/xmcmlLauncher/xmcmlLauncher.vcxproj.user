@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-nthreads 1 -i ..\brain_660_7l_sphere.xml -o ..\res_head_2.mcml.out -s ..\brain_sphere_7l_992.surface</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <MpiDebuggerSchedulerNode>localhost/8</MpiDebuggerSchedulerNode>
+    <MpiDebuggerApplicationCommand>
+    </MpiDebuggerApplicationCommand>
+    <MpiDebuggerApplicationArguments>-nthreads 8 -i ..\brain_915_7l_plane_ring.xml -o res_head.mcml.out -s ..\brain_plane_7l.surface -b ..\xmcml_320.00M.mcml.bk</MpiDebuggerApplicationArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-nthreads 1 -i ..\brain_660_7l_head_target.xml -o ..\res_head.mcml.out -s ..\human_head_scaled_1_45.surface</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <MpiDebuggerSchedulerNode>localhost/4</MpiDebuggerSchedulerNode>
+    <MpiDebuggerApplicationArguments>-nthreads 1 -i ..\brain_660_7l_plane_ring.xml -o ..\res_plane.mcml.out -s ..\brain_plane_7l.surface</MpiDebuggerApplicationArguments>
+  </PropertyGroup>
+</Project>

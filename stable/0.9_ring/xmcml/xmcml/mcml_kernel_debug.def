@@ -1,0 +1,32 @@
+LIBRARY "xmcml"
+EXPORTS
+	InitMCG59 @1
+	NextMCG59 @2
+	ComputeSpecularReflectance @3
+	SubVector @4
+	DotVector @5
+	NormalizeVector @6
+	LengthOfVector @7
+	CrossVector @8
+	GetPlaneNormal @9
+	GetTriangleIntersectionDistance @10
+	MovePhoton @11
+	GetAreaIndex @12
+	ComputeCosineTheta @13
+	ComputePhotonDirection @14
+	ComputeTransmitCosine @15
+	ComputeFrenselReflectance @16
+	FindIntersectionLayer @17
+	RefractVector @18
+	ReflectVector @19
+	ComputeStepSizeInTissue @20
+	ComputeDroppedWeightOfPhoton @21
+	GetCriticalCos @22
+	ComputePhoton @23
+	UpdateWeightInDetectors @24
+	UpdatePhotonTrajectory @25
+	GetPlaneSegmentIntersectionPoint @26
+	ComputeBVHIntersection @27
+	ComputeBVHIntersectionWithoutStep @28
+	GenerateBVHTree @29
+	

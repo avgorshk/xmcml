@@ -1,0 +1,12 @@
+LIBRARY "xmcml"
+EXPORTS
+	InitMCG59 @1
+	ComputeSpecularReflectance @2
+	ComputePhotonBlock @3
+	UpdateWeightInDetector @4
+	UpdateDetectorTimeScale @6
+	UpdateTotalTrajectory @7
+	UpdateDetectorTrajectory @8
+	ComputeWeightIntegral @9
+	GenerateBVHTree @10
+	GetMaxThreads @11

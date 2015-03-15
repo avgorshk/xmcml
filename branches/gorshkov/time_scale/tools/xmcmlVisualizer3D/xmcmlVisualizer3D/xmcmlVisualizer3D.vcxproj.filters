@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{e2cb3172-4dc7-432f-bb5c-64c9c24abd83}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xmcml_demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xmcml_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xmcml_surface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xmcml_trajectory_map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xmcml_trajectory_map_3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\example\math\color.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\example\math\math.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\example\math\matrix.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\example\math\point.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\example\math\quaternion.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\example\math\texcoord.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\example\math\transform.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\example\math\vector.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\example\base_demo.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="xmcml_demo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xmcml_demo_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xmcml_detector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xmcml_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xmcml_sections.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xmcml_surface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xmcml_trajectory_map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xmcml_trajectory_map_3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\color.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\color_imp.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\math.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\matrix.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\point.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\point_imp.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\quaternion.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\texcoord.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\texcoord_imp.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\transform.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\vector.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\math\vector_imp.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\base_demo.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\example\keys.h">
+      <Filter>base</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

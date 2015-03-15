@@ -1,0 +1,6 @@
+LIBRARY "xmcml"
+EXPORTS
+	InitMCG59 @1
+	NextMCG59 @2
+	ComputeSpecularReflectance @3
+	ComputePhoton @4

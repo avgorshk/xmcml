@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-i ..\brain_830_7l_head_0.25.xml -o ..\res.mcml.out -s ..\human_head_scaled.surface -t ..\head_integral_830_0.25.bin -nthreads 1</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <MpiDebuggerSchedulerNode>localhost/2</MpiDebuggerSchedulerNode>
+    <MpiDebuggerApplicationCommand>
+    </MpiDebuggerApplicationCommand>
+    <MpiDebuggerApplicationArguments>-i brain_830_7l_plane.xml -o res.mcml.out -s brain_plane_7l.surface -t head_integral_830.bin -nthreads 1</MpiDebuggerApplicationArguments>
+    <MpiDebuggerMpiExecCommand>C:\Program Files\Microsoft HPC Pack 2008 R2\Bin\mpiexec.exe</MpiDebuggerMpiExecCommand>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-i ..\brain_830_7l_head_0.25.xml -o ..\res.mcml.out -s ..\human_head_scaled.surface -t ..\head_integral_830_0.25.bin -nthreads 1</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <MpiDebuggerSchedulerNode>localhost/2</MpiDebuggerSchedulerNode>
+    <MpiDebuggerApplicationArguments>-i brain_830_7l_plane.xml -o res.mcml.out -s brain_plane_7l.surface -t head_integral_830.bin -nthreads 1</MpiDebuggerApplicationArguments>
+    <MpiDebuggerMpiExecCommand>C:\Program Files\Microsoft HPC Pack 2008 R2\Bin\mpiexec.exe</MpiDebuggerMpiExecCommand>
+  </PropertyGroup>
+</Project>

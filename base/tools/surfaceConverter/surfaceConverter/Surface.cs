@@ -242,5 +242,29 @@ namespace surfaceConverter
                 vertices[i] = result;
             }
         }
+
+        public double3 Center()
+        {
+            double3 min, max, center;
+
+            min = vertices[0];
+            max = vertices[0];
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+                if (vertices[i].x < min.x) min.x = vertices[i].x;
+                if (vertices[i].y < min.y) min.y = vertices[i].y;
+                if (vertices[i].z < min.z) min.z = vertices[i].z;
+
+                if (vertices[i].x > max.x) max.x = vertices[i].x;
+                if (vertices[i].y > max.y) max.y = vertices[i].y;
+                if (vertices[i].z > max.z) max.z = vertices[i].z;
+            }
+
+            center.x = (min.x + max.x) / 2.0;
+            center.y = (min.y + max.y) / 2.0;
+            center.z = (min.z + max.z) / 2.0;
+
+            return center;
+        }
     }
 }

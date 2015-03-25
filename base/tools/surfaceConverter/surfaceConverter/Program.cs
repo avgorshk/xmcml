@@ -1012,9 +1012,88 @@ namespace surfaceConverter
             Console.WriteLine(reader.surface[0].ComputeIntersection(origin, direction));
         }
 
+        static void main_21(String[] args)
+        {
+            SurfaceReader reader = new SurfaceReader("human_head_scaled.surface");
+
+            Surface[] surfaces = new Surface[5];
+            surfaces[0] = reader.surface[0];
+            surfaces[1] = reader.surface[2];
+            surfaces[2] = reader.surface[3];
+            surfaces[3] = reader.surface[4];
+            surfaces[4] = reader.surface[5];
+
+            SurfaceWriter writer = new SurfaceWriter(surfaces);
+            writer.Write("human_head_5l.surface");
+        }
+
+        static void main_22(String[] args)
+        {
+            SurfaceReader reader = new SurfaceReader("human_head_5l.surface");
+
+            double3 origin;
+            origin.x = 0;
+            origin.y = 0;
+            origin.z = 0;
+            double3 direction;
+            direction.x = 0;
+            direction.y = 0;
+            direction.z = 1;
+
+            double[] dist = new double[reader.surface.Length];
+            for (int i = 0; i < reader.surface.Length; ++i)
+            {
+                dist[i] = reader.surface[i].ComputeIntersection(origin, direction);
+            }
+
+            for (int i = 1; i < dist.Length; ++i)
+            {
+                Console.WriteLine(dist[i] - dist[i-1]);
+            }
+        }
+
+        static void ComputeBoundariesXZ()
+        {
+            int n = 1000;
+            SurfaceReader reader = new SurfaceReader("human_head_5l.surface");
+
+            double3 origin;
+            origin.x = 0;
+            origin.y = 0;
+            origin.z = 0;
+            double3 direction;
+            direction.x = 0;
+            direction.y = 0;
+            direction.z = 1;
+
+            var format = new System.Globalization.NumberFormatInfo
+            {
+                NumberDecimalSeparator = "."
+            };
+
+            for (int j = 0; j < reader.surface.Length; ++j)
+            {
+                Console.Write("Surface" + j.ToString());
+                Surface surface = reader.surface[j];
+                StreamWriter sr = new StreamWriter("Surface" + j.ToString() + ".txt");
+                for (int i = 0; i < n; ++i)
+                {
+                    origin.x = -100.0 + i * 200.0 / n;
+                    double dist = surface.ComputeIntersection(origin, direction);
+                    if (dist != VectorMath.MAX_DISTANCE)
+                    {
+                        sr.WriteLine("{0}\t{1}", origin.x.ToString(format), dist.ToString(format));
+                    }
+                    if (i % 10 == 0) Console.Write(".");
+                }
+                sr.Close();
+                Console.WriteLine();
+            }
+        }
+
         static void Main(string[] args)
         {
-            main_12_tab(args);
+            ComputeBoundariesXZ();
         }
     }
 }

@@ -231,6 +231,18 @@ namespace surfaceConverter
             vertices = finish_vertices.ToArray();
         }
 
+        public void RotateX(double alpha)
+        {
+            double3 result;
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+                result.x = vertices[i].x;
+                result.y = Math.Cos(alpha) * vertices[i].y - Math.Sin(alpha) * vertices[i].z;
+                result.z = Math.Sin(alpha) * vertices[i].y + Math.Cos(alpha) * vertices[i].z;
+                vertices[i] = result;
+            }
+        }
+
         public void RotateZ(double alpha)
         {
             double3 result;

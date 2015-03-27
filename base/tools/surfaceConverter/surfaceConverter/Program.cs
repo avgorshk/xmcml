@@ -1027,12 +1027,10 @@ namespace surfaceConverter
             writer.Write("human_head_5l.surface");
         }
 
-        static void main_22(String[] args)
+        static void PrintWidths(Surface[] surface)
         {
-            SurfaceReader reader = new SurfaceReader("human_head_5l.surface");
-
             double3 origin;
-            origin.x = 0;
+            origin.x = 15;
             origin.y = 0;
             origin.z = 0;
             double3 direction;
@@ -1040,10 +1038,10 @@ namespace surfaceConverter
             direction.y = 0;
             direction.z = 1;
 
-            double[] dist = new double[reader.surface.Length];
-            for (int i = 0; i < reader.surface.Length; ++i)
+            double[] dist = new double[surface.Length];
+            for (int i = 0; i < surface.Length; ++i)
             {
-                dist[i] = reader.surface[i].ComputeIntersection(origin, direction);
+                dist[i] = surface[i].ComputeIntersection(origin, direction);
             }
 
             for (int i = 1; i < dist.Length; ++i)
@@ -1052,10 +1050,10 @@ namespace surfaceConverter
             }
         }
 
-        static void ComputeBoundariesXZ()
+        static void ComputeBoundariesXZ(string fileName)
         {
-            int n = 1000;
-            SurfaceReader reader = new SurfaceReader("human_head_5l.surface");
+            int n = 500;
+            SurfaceReader reader = new SurfaceReader(fileName);
 
             double3 origin;
             origin.x = 0;
@@ -1073,16 +1071,17 @@ namespace surfaceConverter
 
             for (int j = 0; j < reader.surface.Length; ++j)
             {
-                Console.Write("Surface" + j.ToString());
                 Surface surface = reader.surface[j];
+
+                Console.Write("Surface" + j.ToString());
                 StreamWriter sr = new StreamWriter("Surface" + j.ToString() + ".txt");
                 for (int i = 0; i < n; ++i)
                 {
-                    origin.x = -100.0 + i * 200.0 / n;
+                    origin.x = -80.0 + i * 160.0 / n;
                     double dist = surface.ComputeIntersection(origin, direction);
                     if (dist != VectorMath.MAX_DISTANCE)
                     {
-                        sr.WriteLine("{0}\t{1}", origin.x.ToString(format), dist.ToString(format));
+                        sr.WriteLine("{0}\t{1}", origin.x.ToString(format), (-dist + 60.0).ToString(format));
                     }
                     if (i % 10 == 0) Console.Write(".");
                 }
@@ -1091,9 +1090,107 @@ namespace surfaceConverter
             }
         }
 
+        static void ComputeBoundariesYZ(string fileName)
+        {
+            int n = 500;
+            SurfaceReader reader = new SurfaceReader(fileName);
+
+            double3 origin;
+            origin.x = 0;
+            origin.y = 0;
+            origin.z = 0;
+            double3 direction;
+            direction.x = 0;
+            direction.y = 0;
+            direction.z = 1;
+
+            var format = new System.Globalization.NumberFormatInfo
+            {
+                NumberDecimalSeparator = "."
+            };
+
+            for (int j = 0; j < reader.surface.Length; ++j)
+            {
+                Surface surface = reader.surface[j];
+
+                Console.Write("Surface" + j.ToString());
+                StreamWriter sr = new StreamWriter("Surface" + j.ToString() + ".txt");
+                for (int i = 0; i < n; ++i)
+                {
+                    origin.y = -80.0 + i * 160.0 / n;
+                    double dist = surface.ComputeIntersection(origin, direction);
+                    if (dist != VectorMath.MAX_DISTANCE)
+                    {
+                        sr.WriteLine("{0}\t{1}", origin.y.ToString(format), (-dist + 60.0).ToString(format));
+                    }
+                    if (i % 10 == 0) Console.Write(".");
+                }
+                sr.Close();
+                Console.WriteLine();
+            }
+        }
+
+        static void Scale()
+        {
+            SurfaceReader reader = new SurfaceReader("human_head_5l.surface");
+
+            Console.WriteLine("Before:");
+            PrintWidths(reader.surface);
+
+            Surface surface = reader.surface[1];
+            surface.Translate(0, 0, -2.3);
+
+            surface = reader.surface[2];
+            surface.Translate(0, 0, -0.4);
+
+            surface = reader.surface[3];
+            double3 center = surface.Center();
+            surface.Translate(-center.x, -center.y, -center.z);
+            surface.Scale(1, 1, 0.9);
+            surface.Translate(center.x, center.y, center.z);
+            surface.Translate(0, 0, -(7.35 - 2.5) - 1.8);
+
+            surface = reader.surface[4];
+            surface.Translate(0, 0, -8.99);
+
+            Console.WriteLine("After:");
+            PrintWidths(reader.surface);
+
+            SurfaceWriter writer = new SurfaceWriter(reader.surface);
+            writer.Write("human_head_5l_scaled.surface");
+        }
+
+        static void Scale2()
+        {
+            SurfaceReader reader = new SurfaceReader("human_head_scaled.surface");
+
+            Console.WriteLine("Before:");
+            PrintWidths(reader.surface);
+
+            Surface surface = reader.surface[3];
+            surface.Translate(0, 0, -0.4);
+
+            surface = reader.surface[4];
+            double3 center = surface.Center();
+            surface.Translate(-center.x, -center.y, -center.z);
+            surface.Scale(1, 1, 0.9);
+            surface.Translate(center.x, center.y, center.z);
+            surface.Translate(0, 0, -(7.35 - 2.5) - 1.8);
+
+            surface = reader.surface[5];
+            surface.Translate(0, 0, -8.99);
+
+            Console.WriteLine("After:");
+            PrintWidths(reader.surface);
+
+            SurfaceWriter writer = new SurfaceWriter(reader.surface);
+            writer.Write("human_head_6l_scaled.surface");
+        }
+
         static void Main(string[] args)
         {
-            ComputeBoundariesXZ();
+            //Scale2();
+            ComputeBoundariesYZ("human_head_6l_scaled.surface");
         }
     }
 }

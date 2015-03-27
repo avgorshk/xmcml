@@ -378,7 +378,7 @@ bool ParseInputFile(char* fileName, InputInfo* input)
             int i = 0;
             for (detectorsChild; detectorsChild; detectorsChild = detectorsChild->NextSiblingElement(), ++i)
             {
-				if (i >= input->numberOfCubeDetectors)
+				if (i >= input->numberOfRingDetectors)
 				{
 					fprintf(stderr, "ERROR: number of ring detectors invalid\n");
 					exit(1);

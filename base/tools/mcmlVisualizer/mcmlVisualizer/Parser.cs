@@ -9,40 +9,56 @@ namespace mcmlVisualizer
 {
     class Parser
     {
-        private const int MCML_SECTION_NUMBER_OF_PHOTONS = 1;
-        private const int MCML_SECTION_AREA = 2;
-        private const int MCML_SECTION_CUBE_DETECTORS = 3;
-        private const int MCML_SECTION_SPECULAR_REFLECTANCE = 4;
-        private const int MCML_SECTION_COMMON_TRAJECTORIES = 5;
-        private const int MCML_SECTION_DETECTOR_WEIGHTS = 6;
-        private const int MCML_SECTION_DETECTOR_TRAJECTORIES = 7;
-        private const int MCML_SECTION_DETECTOR_TIME_SCALE = 8;
-        private const int MCML_SECTION_RING_DETECTORS = 10;
-        private const int MCML_SECTION_DETECTOR_RANGES = 11;
+        private const uint MCML_SECTION_NUMBER_OF_PHOTONS = 1;
+        private const uint MCML_SECTION_AREA = 2;
+        private const uint MCML_SECTION_CUBE_DETECTORS = 3;
+        private const uint MCML_SECTION_SPECULAR_REFLECTANCE = 4;
+        private const uint MCML_SECTION_COMMON_TRAJECTORIES = 5;
+        private const uint MCML_SECTION_DETECTOR_WEIGHTS = 6;
+        private const uint MCML_SECTION_DETECTOR_TRAJECTORIES = 7;
+        private const uint MCML_SECTION_DETECTOR_TIME_SCALE = 8;
+        private const uint MCML_SECTION_RING_DETECTORS = 10;
+        private const uint MCML_SECTION_DETECTOR_RANGES = 11;
 
         private FileStream file;
         private Hashtable sections;
 
-        public string fileName { get; private set; }
+        private UInt64 numberOfPhotons;
+        private Area area;
+        private double specularReflecrance;
 
-        public Parser(string fileName)
+        private double[] detectorWeights = new double[0];
+        private double[] detectorTargetRanges = new double[0];
+        private UInt64[] numPhotonsInDetector = new UInt64[0];
+
+        private double[] absorptionMap = new double[0];
+
+        static public Parser getInstance(string fileName)
         {
-            this.fileName = fileName;
-            this.file = File.Open(this.fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            this.sections = new Hashtable();
-            GetSections();
+            FileStream file = null;
+            try
+            {
+                file = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            Hashtable sections = new Hashtable();
+            bool isOk = GetSections(file, sections);
+            if (isOk && CheckSections(sections))
+            {
+                return new Parser(file, sections);
+            }
+
+            return null;
         }
 
-        ~Parser()
-        {
-            file.Close();
-            sections.Clear();
-        }
-
-        private void GetSections()
+        static private bool GetSections(FileStream file, Hashtable sections)
         {
             uint section, lenght, offset;
-            BinaryReader reader = new BinaryReader(this.file);
+            BinaryReader reader = new BinaryReader(file);
 
             try
             {
@@ -52,139 +68,155 @@ namespace mcmlVisualizer
                     section = reader.ReadUInt32();
                     lenght = reader.ReadUInt32();
                     offset += 8;
-                    this.sections[section] = offset;
+                    sections[section] = offset;
                     offset += lenght;
                     reader.BaseStream.Seek(lenght, SeekOrigin.Current);
                 }
             }
             catch (EndOfStreamException)
-            { }
+            {
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        static private bool CheckSections(Hashtable sections)
+        {
+            return
+                sections.ContainsKey(MCML_SECTION_NUMBER_OF_PHOTONS) &&
+                sections.ContainsKey(MCML_SECTION_AREA) &&
+                sections.ContainsKey(MCML_SECTION_SPECULAR_REFLECTANCE);
+        }
+
+        private Parser(FileStream file, Hashtable sections)
+        {
+            this.file = file;
+            this.sections = sections;
+            Init();
+        }
+
+        ~Parser()
+        {
+            file.Close();
+            sections.Clear();
+        }
+
+        private void Init()
+        {
+            BinaryReader reader = new BinaryReader(this.file);
+            uint offset = 0;
+
+            // MCML_SECTION_NUMBER_OF_PHOTONS
+            offset = (uint)this.sections[MCML_SECTION_NUMBER_OF_PHOTONS];
+            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+            numberOfPhotons = reader.ReadUInt64();
+
+            // MCML_SECTION_AREA
+            offset = (uint)this.sections[MCML_SECTION_AREA];
+            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+            Double3 corner = new Double3(reader.ReadDouble(), reader.ReadDouble(), reader.ReadDouble());
+            Double3 length = new Double3(reader.ReadDouble(), reader.ReadDouble(), reader.ReadDouble());
+            Int3 partitionNumber = new Int3(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
+            area = new Area(corner, length, partitionNumber);
+
+            // MCML_SECTION_SPECULAR_REFLECTANCE
+            offset = (uint)this.sections[MCML_SECTION_SPECULAR_REFLECTANCE];
+            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+            specularReflecrance = reader.ReadDouble();
+
+            // MCML_SECTION_COMMON_TRAJECTORIES
+            if (sections.ContainsKey(MCML_SECTION_COMMON_TRAJECTORIES))
+            {
+                offset = (uint)this.sections[MCML_SECTION_COMMON_TRAJECTORIES];
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                int size = reader.ReadInt32();
+                absorptionMap = new double[size];
+                for (int i = 0; i < size; ++i)
+                {
+                    absorptionMap[i] = reader.ReadDouble();
+                }
+            }
+
+            // MCML_SECTION_DETECTOR_WEIGHTS
+            if (sections.ContainsKey(MCML_SECTION_DETECTOR_WEIGHTS))
+            {
+                offset = (uint)this.sections[MCML_SECTION_DETECTOR_WEIGHTS];
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                int numberOfDetectors = reader.ReadInt32();
+                detectorWeights = new double[numberOfDetectors];
+                for (int i = 0; i < numberOfDetectors; ++i)
+                {
+                    detectorWeights[i] = reader.ReadDouble();
+                }
+            }
+
+            // MCML_SECTION_DETECTOR_TRAJECTORIES
+            if (sections.ContainsKey(MCML_SECTION_DETECTOR_TRAJECTORIES))
+            {
+                offset = (uint)this.sections[MCML_SECTION_DETECTOR_TRAJECTORIES];
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                int numberOfDetectors = reader.ReadInt32();
+                numPhotonsInDetector = new UInt64[numberOfDetectors];
+                for (int i = 0; i < numberOfDetectors; ++i)
+                {
+                    numPhotonsInDetector[i] = reader.ReadUInt64();
+                    int size = reader.ReadInt32();
+                    offset = (uint)(size * sizeof(double));
+                    reader.BaseStream.Seek(offset, SeekOrigin.Current);
+                }
+            }
+
+            // MCML_SECTION_DETECTOR_RANGES
+            if (sections.ContainsKey(MCML_SECTION_DETECTOR_RANGES))
+            {
+                offset = (uint)this.sections[MCML_SECTION_DETECTOR_RANGES];
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                int numberOfDetectors = reader.ReadInt32();
+                detectorTargetRanges = new double[numberOfDetectors];
+                for (int i = 0; i < numberOfDetectors; ++i)
+                {
+                    reader.ReadDouble();
+                    detectorTargetRanges[i] = reader.ReadDouble();
+                }
+            }
         }
 
         public UInt64 GetNumberOfPhotons() 
         {
-            BinaryReader reader = new BinaryReader(this.file);
-            uint offset = (uint)(this.sections[(uint?)MCML_SECTION_NUMBER_OF_PHOTONS]);
-            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-            UInt64 numberOfPhotons = reader.ReadUInt64();
             return numberOfPhotons;
         }
 
         public Area GetArea()
         {
-            BinaryReader reader = new BinaryReader(this.file);
-            uint offset = (uint)(this.sections[(uint?)MCML_SECTION_AREA]);
-            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-
-            Double3 corner = new Double3(reader.ReadDouble(), reader.ReadDouble(),
-                reader.ReadDouble());
-            Double3 length = new Double3(reader.ReadDouble(), reader.ReadDouble(),
-                reader.ReadDouble());
-            Int3 partitionNumber = new Int3(reader.ReadInt32(), reader.ReadInt32(),
-                reader.ReadInt32());
-            Area area = new Area(corner, length, partitionNumber);
-
             return area;
         }
         
         public double GetSpecularReflectance()
         {
-            BinaryReader reader = new BinaryReader(this.file);
-            uint offset = (uint)(this.sections[(uint?)MCML_SECTION_SPECULAR_REFLECTANCE]);
-            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-            double specularReflecrance = reader.ReadDouble();
             return specularReflecrance;
         }
 
         public int GetNumberOfDetectors()
         {
-            int numberOfDetectors = 0;
-            BinaryReader reader = new BinaryReader(this.file);
-            try
-            {
-                uint offset = (uint)(this.sections[(uint?)MCML_SECTION_CUBE_DETECTORS]);
-                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-                numberOfDetectors += reader.ReadInt32();
-            }
-            catch (Exception) { }
-            try
-            {
-                uint offset = (uint)(this.sections[(uint?)MCML_SECTION_RING_DETECTORS]);
-                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-                numberOfDetectors += reader.ReadInt32();
-            }
-            catch (Exception) { }
-            return numberOfDetectors;
+            return detectorWeights.Length;
         }
 
         public double[] GetDetectorWeights()
         {
-            int numberOfDetectors = GetNumberOfDetectors();
-            double[] weights = new double[numberOfDetectors];
-
-            BinaryReader reader = new BinaryReader(this.file);
-            uint offset = (uint)(this.sections[(uint?)MCML_SECTION_DETECTOR_WEIGHTS]);
-            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-            reader.ReadInt32();
-            for (int i = 0; i < numberOfDetectors; ++i)
-            {
-                weights[i] = reader.ReadDouble();
-            }
-
-            return weights;
-        }
-
-        public double[] GetDetectorOtherRanges()
-        {
-            int numberOfDetectors = GetNumberOfDetectors();
-            double[] otherRanges = new double[numberOfDetectors];
-
-            BinaryReader reader = new BinaryReader(this.file);
-            uint offset = (uint)(this.sections[(uint?)MCML_SECTION_DETECTOR_RANGES]);
-            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-            reader.ReadInt32();
-            for (int i = 0; i < numberOfDetectors; ++i)
-            {
-                otherRanges[i] = reader.ReadDouble();
-                reader.ReadDouble();
-            }
-
-            return otherRanges;
+            return detectorWeights;
         }
 
         public double[] GetDetectorTargetRanges()
         {
-            int numberOfDetectors = GetNumberOfDetectors();
-            double[] targetRanges = new double[numberOfDetectors];
-
-            BinaryReader reader = new BinaryReader(this.file);
-            uint offset = (uint)(this.sections[(uint?)MCML_SECTION_DETECTOR_RANGES]);
-            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-            reader.ReadInt32();
-            for (int i = 0; i < numberOfDetectors; ++i)
-            {
-                reader.ReadDouble();
-                targetRanges[i] = reader.ReadDouble();
-            }
-
-            return targetRanges;
+            return detectorTargetRanges;
         }
 
         public double[] GetTrajectories()
         {
-            BinaryReader reader = new BinaryReader(this.file);
-            uint offset = (uint)(this.sections[(uint?)MCML_SECTION_COMMON_TRAJECTORIES]);
-            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-            
-            int numberOfValues = reader.ReadInt32();
-            double[] trajectories = new double[numberOfValues];
-
-            for (int i = 0; i < numberOfValues; ++i)
-            {
-                trajectories[i] = reader.ReadDouble();
-            }
-
-            return trajectories;
+            return absorptionMap;
         }
 
         public UInt64[] GetDetectorTrajectories(int detectorId)
@@ -209,10 +241,8 @@ namespace mcmlVisualizer
                 }
                 else
                 {
-                    for (int j = 0; j < numberOfValues; ++j)
-                    {
-                        reader.ReadDouble();
-                    }
+                    offset = (uint)(numberOfValues * sizeof(double));
+                    reader.BaseStream.Seek(offset, SeekOrigin.Current);
                 }
             }
 
@@ -244,12 +274,10 @@ namespace mcmlVisualizer
                         }
                         return timeInfo;
                     }
-                    for (int j = 0; j < timeScaleSize; ++j)
+                    else
                     {
-                        reader.ReadDouble();
-                        reader.ReadDouble();
-                        reader.ReadUInt64();
-                        reader.ReadDouble();
+                        offset = (uint)(timeScaleSize * (3 * sizeof(double) + sizeof(UInt64)));
+                        reader.BaseStream.Seek(offset, SeekOrigin.Current);
                     }
                 }
             }
@@ -259,23 +287,9 @@ namespace mcmlVisualizer
 
         public UInt64 GetNumberOfPhotonsInDetector(int detectorId)
         {
-            BinaryReader reader = new BinaryReader(this.file);
-            uint offset = (uint)(this.sections[(uint?)MCML_SECTION_DETECTOR_TRAJECTORIES]);
-            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-
-            int numberOfDetectors = reader.ReadInt32();
-            for (int i = 0; i < numberOfDetectors; ++i)
+            if (detectorId < numPhotonsInDetector.Length)
             {
-                UInt64 numberOfPhotons = reader.ReadUInt64();
-                int numberOfValues = reader.ReadInt32();
-                if (i == detectorId)
-                {
-                    return numberOfPhotons;
-                }
-                for (int j = 0; j < numberOfValues; ++j)
-                {
-                    reader.ReadDouble();
-                }
+                return numPhotonsInDetector[detectorId];
             }
 
             return 0;
@@ -283,24 +297,76 @@ namespace mcmlVisualizer
 
         public UInt64[] GetNumberOfPhotonsInDetectorAsArray()
         {
-            BinaryReader reader = new BinaryReader(this.file);
-            uint offset = (uint)(this.sections[(uint?)MCML_SECTION_DETECTOR_TRAJECTORIES]);
-            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+            return numPhotonsInDetector;
+        }
 
-            int numberOfDetectors = reader.ReadInt32();
-            UInt64[] numberOfPhotonsPerDetector = new UInt64[numberOfDetectors];
+        public StringBuilder GetText()
+        {
+            StringBuilder text = new StringBuilder();
 
-            for (int i = 0; i < numberOfDetectors; ++i)
+            text.AppendFormat("Number of photons: {0}\n", numberOfPhotons);
+            text.AppendFormat("Specular reflectance: {0}\n", specularReflecrance);
+
+            text.AppendFormat("Photons in detector ({0}):\n", numPhotonsInDetector.Length);
+            for (int i = 0; i < numPhotonsInDetector.Length; ++i)
             {
-                numberOfPhotonsPerDetector[i] = reader.ReadUInt64();
-                int numberOfValues = reader.ReadInt32();
-                for (int j = 0; j < numberOfValues; ++j)
+                text.AppendFormat("{0} ", numPhotonsInDetector[i]);
+            }
+            text.AppendFormat("\n");
+
+            text.AppendFormat("Weights ({0}):\n", detectorWeights.Length);
+            for (int i = 0; i < detectorWeights.Length; ++i)
+            {
+                text.AppendFormat("{0} ", detectorWeights[i]);
+            }
+            text.AppendFormat("\n");
+
+            text.AppendFormat("Target ranges ({0}):\n", detectorTargetRanges.Length);
+            for (int i = 0; i < detectorTargetRanges.Length; ++i)
+            {
+                text.AppendFormat("{0} ", detectorTargetRanges[i]);
+            }
+            text.AppendFormat("\n");
+
+            text.AppendFormat("Absorption Map ({0}):\n", absorptionMap.Length);
+            for (int i = 0; i < absorptionMap.Length; ++i)
+            {
+                text.AppendFormat("{0} ", absorptionMap[i]);
+            }
+            text.AppendFormat("\n");
+
+            text.AppendFormat("Detector trajectories ({0})\n", detectorWeights.Length);
+            ulong[] commonTrajectory = GetDetectorTrajectories(0);
+            for (int i = 1; i < detectorWeights.Length; ++i)
+            {
+                ulong[] trajectory = GetDetectorTrajectories(i);
+                for (int j = 0; j < commonTrajectory.Length; ++j)
                 {
-                    reader.ReadDouble();
+                    commonTrajectory[j] += trajectory[j];
                 }
+                
+            }
+            text.AppendFormat("Common trajectory ({0}):\n", commonTrajectory.Length);
+            for (int i = 0; i < commonTrajectory.Length; ++i)
+            {
+                text.AppendFormat("{0} ", commonTrajectory[i]);
+            }
+            text.AppendFormat("\n");
+
+            text.AppendFormat("Detector Time Scales ({0}):\n", detectorWeights.Length);
+            for (int i = 0; i < detectorWeights.Length; ++i)
+            {
+                TimeInfo[] timeInfo = GetDetectorTimeScale(i);
+                text.AppendFormat("Detector {0} ({1}):\n", i, timeInfo.Length);
+                for (int j = 0; j < timeInfo.Length; ++j)
+                {
+                    text.AppendFormat("[{0}, {1}] -> ({2}, {3})\n", timeInfo[j].timeStart, timeInfo[j].timeFinish,
+                        timeInfo[j].numberOfPhotons, timeInfo[j].weight);
+                }
+                text.AppendFormat("\n");
             }
 
-            return numberOfPhotonsPerDetector;
+            return text;
         }
     }
 }

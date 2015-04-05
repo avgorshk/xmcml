@@ -18,6 +18,7 @@
                     <MenuItem Header="Save target ranges for detectors (normalized)" Click="MenuItem_SaveTargetRangesForDetectorsNormalized_Click" />
                 </MenuItem>
                 <MenuItem Header="Save time scales..." Click="MenuItem_SaveTimeScales_Click"/>
+                <MenuItem Header="Save all as a text..." Click="MenuItem_SaveAsText_Click"/>
                 <MenuItem Header="Exit" Click="MainMenu_Exit_Click" />
             </MenuItem>
             <MenuItem Header="Detectors" />
@@ -26,8 +27,6 @@
                 <MenuItem Header="XZ" Click="MenuItem_XZ_Click" />
                 <MenuItem Header="YZ" Click="MenuItem_YZ_Click" />
             </MenuItem>
-            <MenuItem Header="Compare files..." Click="CompareFiles_Click" />
-            <MenuItem Header="Paint boundaries" Click="PaintBoundaries_Click"></MenuItem>
         </Menu>
         <GroupBox Header="Information" Height="300" HorizontalAlignment="Left" Margin="6,25,0,0" Name="groupBoxInformation" VerticalAlignment="Top" Width="350">
             <Grid>

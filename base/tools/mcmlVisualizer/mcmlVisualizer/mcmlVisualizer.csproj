@@ -55,16 +55,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CompareWindow.xaml.cs">
-      <DependentUpon>CompareWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Parser.cs" />
     <Compile Include="TrajectoryBox.cs" />
     <Compile Include="Types.cs" />
-    <Page Include="CompareWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

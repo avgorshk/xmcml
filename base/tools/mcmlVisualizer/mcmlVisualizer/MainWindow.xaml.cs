@@ -54,7 +54,11 @@ namespace mcmlVisualizer
             {
                 OpenFileDialog openFileDialog = sender as OpenFileDialog;
                 this.Title = "mcmlVisualizer: " + openFileDialog.FileName;
-                parser = new Parser(openFileDialog.FileName);
+                parser = Parser.getInstance(openFileDialog.FileName);
+                if (parser == null)
+                {
+                    throw new Exception("File is incorrect");
+                }
                 
                 SetInformation(parser);
 
@@ -142,7 +146,6 @@ namespace mcmlVisualizer
             textBoxInformation.Text += "Specular reflectance: " + parser.GetSpecularReflectance() + "\n";
 
             double[] weights = parser.GetDetectorWeights();
-            double[] otherRanges = parser.GetDetectorOtherRanges();
             double[] targetRanges = parser.GetDetectorTargetRanges();
 
             UInt64[] numberOfPhotonsPerDetector = parser.GetNumberOfPhotonsInDetectorAsArray();
@@ -152,20 +155,15 @@ namespace mcmlVisualizer
                 totalNumberOfPhotonsInDetectors += numberOfPhotonsPerDetector[i];
             }
 
-            textBoxInformation.Text += "Detector weights: (" + totalNumberOfPhotonsInDetectors.ToString() +")\n";
+            textBoxInformation.Text += "Detectors: (" + totalNumberOfPhotonsInDetectors.ToString() +")\n";
             for (int i = 0; i < weights.Length; ++i)
             {
-                textBoxInformation.Text += "\tDetector " + i.ToString() + ": " +
-                    weights[i] / numberOfPhotons + " (" + numberOfPhotonsPerDetector[i] + ")" + "\n";
-            }            
-
-            textBoxInformation.Text += "Detector ranges: (" + totalNumberOfPhotonsInDetectors.ToString() + ")\n";
-            for (int i = 0; i < weights.Length; ++i)
-            {
-                textBoxInformation.Text += "\tDetector " + i.ToString() + ": " +
-                    (otherRanges[i]  / numberOfPhotons) + " | " +
-                    (targetRanges[i] / numberOfPhotons) + 
-                    " (" + numberOfPhotonsPerDetector[i] + ")" + "\n";
+                textBoxInformation.Text += "\tDetector " + i.ToString() + ": " + weights[i] / numberOfPhotons;
+                if (i < targetRanges.Length)
+                {
+                    textBoxInformation.Text += " | " + targetRanges[i] / numberOfPhotons;
+                }
+                textBoxInformation.Text += " (" + numberOfPhotonsPerDetector[i] + ")" + "\n";
             }
         }
 
@@ -340,7 +338,7 @@ namespace mcmlVisualizer
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Trajectory maps TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
 
             if (sfd.ShowDialog() == true)
             {
@@ -364,7 +362,7 @@ namespace mcmlVisualizer
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Trajectory maps TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
 
             if (sfd.ShowDialog() == true)
             {
@@ -388,7 +386,7 @@ namespace mcmlVisualizer
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Trajectory maps TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
 
             if (sfd.ShowDialog() == true)
             {
@@ -408,194 +406,11 @@ namespace mcmlVisualizer
             }
         }
 
-        private void CompareFiles_Click(object sender, RoutedEventArgs e)
-        {
-            const double EPS = 1.0E-12;
-            double error;
-
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Multiselect = true;
-            dialog.Filter = "MCML Output files (*.mcml.out, *.mcml.bk)|*.mcml.out;*.mcml.bk";
-            dialog.Title = "Choose two files for comparing";
-            if (dialog.ShowDialog().Value && dialog.FileNames.Length > 1)
-            {
-                List<string> result = new List<string>();
-                Parser parser1 = new Parser(dialog.FileNames[0]);
-                Parser parser2 = new Parser(dialog.FileNames[1]);
-
-                result.Add("Number of photons:");
-                ulong numberOfPhotons1 = parser1.GetNumberOfPhotons();
-                ulong numberOfPhotons2 = parser2.GetNumberOfPhotons();
-                if (numberOfPhotons1 != numberOfPhotons2)
-                {
-                    result.Add(string.Format("{0} - {1}", numberOfPhotons1, numberOfPhotons2));
-                }
-
-                result.Add("Specular reflectance:");
-                double specularReflectance1 = parser1.GetSpecularReflectance();
-                double specularReflectance2 = parser2.GetSpecularReflectance();
-                if (specularReflectance1 != specularReflectance2)
-                {
-                    result.Add(string.Format("{0} - {1} ({2})", specularReflectance1,
-                        specularReflectance2, Math.Abs(specularReflectance1 - specularReflectance2)));
-                }
-
-                result.Add("Absorption:");
-                double[] absorption1 = parser1.GetTrajectories();
-                double[] absorption2 = parser2.GetTrajectories();
-                if (absorption1.Length != absorption2.Length)
-                {
-                    result.Add(string.Format("Length: {0} - {1}", absorption1.Length, absorption2.Length));
-                }
-                else
-                {
-                    double maxError = 0;
-                    for (int i = 0; i < absorption1.Length; ++i)
-                    {
-                        error = Math.Abs((absorption1[i] - absorption2[i]) / 
-                            Math.Min(absorption1[i], absorption2[i]));
-                        if (error > maxError)
-                        {
-                            maxError = error;
-                        }
-                        if (error > EPS)
-                        {
-                            result.Add(string.Format("[{0}]: {1} - {2} ({3})", i, absorption1[i],
-                                absorption2[i], error));
-                        }
-                    }
-                    result.Add("Max error " + maxError.ToString());
-                }
-
-                result.Add("Detectors:");
-
-                int numberOfDetectors1 = parser1.GetNumberOfDetectors();
-                int numberOfDetectors2 = parser2.GetNumberOfDetectors();
-                if (numberOfDetectors1 != numberOfDetectors2)
-                {
-                    result.Add(string.Format("Number of detectors: {0} - {1}", numberOfDetectors1,
-                        numberOfDetectors2));
-                }
-                else
-                {
-                    double[] weights1 = parser1.GetDetectorWeights();
-                    double[] weights2 = parser2.GetDetectorWeights();
-
-                    double[] otherRanges1 = parser1.GetDetectorOtherRanges();
-                    double[] otherRanges2 = parser2.GetDetectorOtherRanges();
-
-                    double[] targetRanges1 = parser1.GetDetectorTargetRanges();
-                    double[] targetRanges2 = parser2.GetDetectorTargetRanges();
-
-                    for (int i = 0; i < numberOfDetectors1; ++i)
-                    {
-                        result.Add(string.Format("Detector {0}:", i));
-                        
-                        ulong photonsInDetector1 = parser1.GetNumberOfPhotonsInDetector(i);
-                        ulong photonsInDetector2 = parser2.GetNumberOfPhotonsInDetector(i);
-                        if (photonsInDetector1 != photonsInDetector2)
-                        {
-                            result.Add(string.Format("Number of photons: {0} - {1}", photonsInDetector1,
-                                photonsInDetector2));
-                        }
-                        else
-                        {                            
-                            error = Math.Abs((weights1[i] - weights2[i])/Math.Min(weights1[i], weights2[i]));
-                            if (error > EPS)
-                            {
-                                result.Add(string.Format("Weight: {0} - {1} ({2})", weights1[i],
-                                    weights2[i], error));
-                            }
-                            else
-                            {
-                                error = Math.Abs((otherRanges1[i] - otherRanges2[i])/Math.Min(otherRanges1[i], otherRanges2[i]));
-                                if (error > EPS)
-                                {
-                                    result.Add(string.Format("Other range: {0} - {1} ({2})", otherRanges1[i], otherRanges2[i], error));
-                                }
-
-                                error = Math.Abs((targetRanges1[i] - targetRanges2[i]) / Math.Min(targetRanges1[i], targetRanges2[i]));
-                                if (error > EPS)
-                                {
-                                    result.Add(string.Format("Target range: {0} - {1} ({2})", targetRanges1[i], targetRanges2[i], error));
-                                }
-                                
-
-                                ulong[] trajectory1 = parser1.GetDetectorTrajectories(i);
-                                ulong[] trajectory2 = parser2.GetDetectorTrajectories(i);
-                                if (trajectory1.Length != trajectory2.Length)
-                                {
-                                    result.Add(string.Format("Length: {0} - {1}",
-                                        trajectory1.Length, trajectory2.Length));
-                                }
-                                else
-                                {
-                                    for (int j = 0; j < trajectory1.Length; ++j)
-                                    {
-                                        if (trajectory1[j] != trajectory2[j])
-                                        {
-                                            result.Add(string.Format("[{0}]: {1} - {2}", i, trajectory1[j],
-                                                trajectory2[j]));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        TimeInfo[] timeScale1 = parser1.GetDetectorTimeScale(i);
-                        TimeInfo[] timeScale2 = parser2.GetDetectorTimeScale(i);
-                        result.Add(string.Format("Time scale:"));
-                        if (timeScale1.Length != timeScale2.Length)
-                        {
-                            result.Add(string.Format("Time scale length: {0} - {1}",
-                                timeScale1.Length, timeScale2.Length));
-                        }
-                        else
-                        {
-                            double maxError = 0;
-                            for (int j = 0; j < timeScale1.Length; ++j)
-                            {
-                                if (timeScale1[j].timeStart != timeScale2[j].timeStart)
-                                {
-                                    result.Add(string.Format("[{0}] time start: {0} - {1}",
-                                        j, timeScale1[j].timeStart, timeScale2[j].timeStart));
-                                }
-                                if (timeScale1[j].timeFinish != timeScale2[j].timeFinish)
-                                {
-                                    result.Add(string.Format("[{0}] time finish: {0} - {1}",
-                                        j, timeScale1[j].timeFinish, timeScale2[j].timeFinish));
-                                }
-                                if (timeScale1[j].numberOfPhotons != timeScale2[j].numberOfPhotons)
-                                {
-                                    result.Add(string.Format("[{0}] number of photons: {0} - {1}",
-                                        j, timeScale1[j].numberOfPhotons, timeScale2[j].numberOfPhotons));
-                                }
-                                error = timeScale1[j].weight - timeScale2[j].weight;
-                                if (error > maxError)
-                                {
-                                    maxError = error;
-                                }
-                                if (error > EPS)
-                                {
-                                    result.Add(string.Format("[{0}] weight: {1} - {2} ({3})",
-                                        j, timeScale1[j].weight, timeScale2[j].weight, error));
-                                }
-                            }
-                            result.Add("Max error " + maxError.ToString());
-                        }
-                    }
-                }
-
-                CompareWindow compareWindow = new CompareWindow(result);
-                compareWindow.ShowDialog();
-            }
-        }
-
         private void MenuItem_SaveDetectors_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Weight in detectors TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
 
             if (sfd.ShowDialog() == true && parser != null)
             {
@@ -615,7 +430,7 @@ namespace mcmlVisualizer
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Time scales TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
 
             if (sfd.ShowDialog() == true && parser != null)
             {
@@ -648,74 +463,11 @@ namespace mcmlVisualizer
             }
         }
 
-        private void PaintBoundaries_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Title = "Open boundary file";
-            ofd.DefaultExt = "txt";
-            ofd.Filter = "Boundary file|*.txt";
-            if (ofd.ShowDialog() == true)
-            {
-                StreamReader reader = new StreamReader(ofd.FileName);
-                reader.ReadLine();
-                double x1 = double.Parse(reader.ReadLine());
-                double x2 = double.Parse(reader.ReadLine());
-                double z1 = double.Parse(reader.ReadLine());
-                double z2 = double.Parse(reader.ReadLine());
-                reader.ReadLine();
-                int numberOfSurfaces = int.Parse(reader.ReadLine());
-                List<Double3>[] points = new List<Double3>[numberOfSurfaces];
-                for (int i = 0; i < numberOfSurfaces; ++i)
-                {
-                    reader.ReadLine();
-                    int numberOfPoints = int.Parse(reader.ReadLine());
-                    points[i] = new List<Double3>();
-                    for (int j = 0; j < numberOfPoints; ++j)
-                    {
-                        Double3 point = new Double3(
-                            double.Parse(reader.ReadLine()), 
-                            0,
-                            double.Parse(reader.ReadLine()));
-                        points[i].Add(point);
-                    }
-                }
-
-                double stepX = gridXZ.ActualWidth / (x2 - x1);
-                double stepZ = gridXZ.ActualHeight / (z2 - z1);
-                for (int i = 0; i < points.Length; ++i)
-                {
-                    for (int j = 0; j < points[i].Count; ++j)
-                    {
-                        SolidColorBrush brush = new SolidColorBrush(GetColorByID(i));
-                        Rectangle rectangle = new Rectangle();
-                        rectangle.Height = 1;
-                        rectangle.Width = 1;
-                        rectangle.Margin = new Thickness((points[i][j].x - x1) * stepX, (points[i][j].z - z1) * stepZ, 0, 0);
-                        rectangle.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                        rectangle.VerticalAlignment = System.Windows.VerticalAlignment.Top;
-                        rectangle.Fill = brush;
-                        gridXZ.Children.Add(rectangle);
-                    }
-                }
-            }
-        }
-
-        private Color GetColorByID(int id)
-        {
-            if (id == 0) return Colors.Red;
-            if (id == 1) return Colors.Green;
-            if (id == 2) return Colors.Yellow;
-            if (id == 3) return Colors.Blue;
-            if (id == 4) return Colors.Orange;
-            if (id == 5) return Colors.Purple;
-            return Colors.Black;
-        }
-
         private void MenuItem_SaveDetectorsWithoutNorma_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Weight in detectors TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
 
             if (sfd.ShowDialog() == true && parser != null)
             {
@@ -734,7 +486,7 @@ namespace mcmlVisualizer
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Number of photons per detector TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
 
             if (sfd.ShowDialog() == true && parser != null)
             {
@@ -754,15 +506,16 @@ namespace mcmlVisualizer
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Other ranges for detectors TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
             if (sfd.ShowDialog() == true && parser != null)
             {
                 int numberOfDetectors = parser.GetNumberOfDetectors();
-                double[] otherRanges = parser.GetDetectorOtherRanges();
+                double[] weights = parser.GetDetectorWeights();
+                double[] targetRanges = parser.GetDetectorTargetRanges();
                 StreamWriter writer = new StreamWriter(sfd.FileName);
                 for (int i = 0; i < numberOfDetectors; ++i)
                 {
-                    writer.WriteLine(otherRanges[i]);
+                    writer.WriteLine(weights[i] - targetRanges[i]);
                 }
                 writer.Flush();
                 writer.Close();
@@ -773,7 +526,7 @@ namespace mcmlVisualizer
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Target ranges for detectors TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
             if (sfd.ShowDialog() == true && parser != null)
             {
                 int numberOfDetectors = parser.GetNumberOfDetectors();
@@ -792,16 +545,17 @@ namespace mcmlVisualizer
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Other ranges for detectors TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
             if (sfd.ShowDialog() == true && parser != null)
             {
                 int numberOfDetectors = parser.GetNumberOfDetectors();
-                double[] otherRanges = parser.GetDetectorOtherRanges();
+                double[] weights = parser.GetDetectorWeights();
+                double[] targetRanges = parser.GetDetectorTargetRanges();
                 UInt64 numberOfPhotons = parser.GetNumberOfPhotons();
                 StreamWriter writer = new StreamWriter(sfd.FileName);
                 for (int i = 0; i < numberOfDetectors; ++i)
                 {
-                    writer.WriteLine(otherRanges[i] / numberOfPhotons);
+                    writer.WriteLine((weights[i] - targetRanges[i]) / numberOfPhotons);
                 }
                 writer.Flush();
                 writer.Close();
@@ -812,7 +566,7 @@ namespace mcmlVisualizer
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
-            sfd.Filter = "Target ranges for detectors TXT file|*.txt";
+            sfd.Filter = "Text file|*.txt";
             if (sfd.ShowDialog() == true && parser != null)
             {
                 int numberOfDetectors = parser.GetNumberOfDetectors();
@@ -823,6 +577,20 @@ namespace mcmlVisualizer
                 {
                     writer.WriteLine(targetRanges[i] / numberOfPhotons);
                 }
+                writer.Flush();
+                writer.Close();
+            }
+        }
+
+        private void MenuItem_SaveAsText_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.DefaultExt = "txt";
+            sfd.Filter = "Text file|*.txt";
+            if (sfd.ShowDialog() == true && parser != null)
+            {
+                StreamWriter writer = new StreamWriter(sfd.FileName);
+                writer.Write(parser.GetText().ToString());
                 writer.Flush();
                 writer.Close();
             }

@@ -96,7 +96,7 @@ void xmcml_demo::init()
         is_no_errors = false;
     }
 
-    static const char* geometry_file_name = arg_get_value("-geometry", "file not found");
+    static const char* geometry_file_name = arg_get_value("-surface", "file not found");
     sprintf(geometry_file_name_message, "Geometry file: %s", geometry_file_name);
     if (strcmp(geometry_file_name, "file not found") != 0)
     {

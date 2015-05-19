@@ -132,6 +132,7 @@ void LaunchPhoton(InputInfo* input, PhotonState* photon, double specularReflecta
 	photon->step = 0.0;
     photon->time = 0.0;
 	photon->targetRange = 0.0;
+	photon->otherRange = 0.0;
 	
 	photon->position.x = input->startPosition.x;
 	photon->position.y = input->startPosition.y;

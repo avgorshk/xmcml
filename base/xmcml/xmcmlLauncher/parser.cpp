@@ -3,6 +3,7 @@
 #include "../tinyxml/inc/tinyxml.h"
 #include "reader.h"
 #include "sections.h"
+#include <map>
 
 #include "parser.h"
 
@@ -55,6 +56,8 @@ bool ParseInputFile(char* fileName, InputInfo* input)
     
     TiXmlElement* root = document.FirstChildElement();
     TiXmlElement* node = root->FirstChildElement();
+	std::multimap <int, CubeDetector> CubeDetectorsMap;
+	std::multimap <int, RingDetector> RingDetectorsMap;
     for (node; node; node = node->NextSiblingElement())
     {
         if (strcmp(node->Value(), "NumberOfPhotons") == 0)
@@ -299,12 +302,13 @@ bool ParseInputFile(char* fileName, InputInfo* input)
                 }
             }
         }
-        else if (strcmp(node->Value(), "NumberOfDetectors") == 0)
+        else if (strcmp(node->Value(), "NumberOfCubeDetectors") == 0)
         {
             input->numberOfCubeDetectors = atoi(node->GetText());
         }
-        else if (strcmp(node->Value(), "Detectors") == 0)
+        else if (strcmp(node->Value(), "CubeDetectors") == 0)
         {
+			CubeDetector cubeDetector;
             input->cubeDetector = new CubeDetector[input->numberOfCubeDetectors];
             TiXmlElement* detectorsChild = node->FirstChildElement();
             int i = 0;
@@ -315,9 +319,13 @@ bool ParseInputFile(char* fileName, InputInfo* input)
 					fprintf(stderr, "ERROR: number of cube detectors invalid\n");
 					exit(1);
 				}
-                if (strcmp(detectorsChild->Value(), "Detector") == 0)
+                if (strcmp(detectorsChild->Value(), "CubeDetector") == 0)
                 {
-					input->cubeDetector[i].targetLayer = 1;
+					int numberOfFilterLayers = MAX_LAYERS;
+					for(int j = 0; j < MAX_LAYERS; j++)
+					{
+						cubeDetector.filterLayers[j] = true;
+					}
                     TiXmlElement* detectorChild = detectorsChild->FirstChildElement();
                     for (detectorChild; detectorChild; detectorChild = detectorChild->NextSiblingElement())
                     {
@@ -328,15 +336,15 @@ bool ParseInputFile(char* fileName, InputInfo* input)
                             {
                                 if (strcmp(centerChild->Value(), "X") == 0)
                                 {
-                                    input->cubeDetector[i].center.x = atof(centerChild->GetText());
+                                    cubeDetector.center.x = atof(centerChild->GetText());
                                 }
                                 else if (strcmp(centerChild->Value(), "Y") == 0)
                                 {
-                                    input->cubeDetector[i].center.y = atof(centerChild->GetText());
+                                    cubeDetector.center.y = atof(centerChild->GetText());
                                 }
                                 else if (strcmp(centerChild->Value(), "Z") == 0)
                                 {
-                                    input->cubeDetector[i].center.z = atof(centerChild->GetText());
+                                    cubeDetector.center.z = atof(centerChild->GetText());
                                 }
                             }
                         }
@@ -347,23 +355,44 @@ bool ParseInputFile(char* fileName, InputInfo* input)
                             {
                                 if (strcmp(lengthChild->Value(), "X") == 0)
                                 {
-                                    input->cubeDetector[i].length.x = atof(lengthChild->GetText());
+                                    cubeDetector.length.x = atof(lengthChild->GetText());
                                 }
                                 else if (strcmp(lengthChild->Value(), "Y") == 0)
                                 {
-                                    input->cubeDetector[i].length.y = atof(lengthChild->GetText());
+                                    cubeDetector.length.y = atof(lengthChild->GetText());
                                 }
                                 else if (strcmp(lengthChild->Value(), "Z") == 0)
                                 {
-                                    input->cubeDetector[i].length.z = atof(lengthChild->GetText());
+                                    cubeDetector.length.z = atof(lengthChild->GetText());
                                 }
                             }
                         }
-						else if (strcmp(detectorChild->Value(), "TargetLayer") == 0)
+						else if (strcmp(detectorChild->Value(), "Filter") == 0)
 						{
-							input->cubeDetector[i].targetLayer = atoi(detectorChild->GetText());
+							for(int j = 0; j < MAX_LAYERS; j++)
+							{
+								cubeDetector.filterLayers[j] = false;
+							}
+							numberOfFilterLayers = 0;
+							TiXmlElement* filterChild = detectorChild->FirstChildElement();
+							int j = 0, indLayer;
+							for (filterChild; filterChild; filterChild = filterChild->NextSiblingElement(), ++j)
+							{
+								if (strcmp(filterChild->Value(), "Layer") == 0)
+								{
+									indLayer = atoi(filterChild->GetText());
+									if((indLayer < 0) || (indLayer >= MAX_LAYERS)) 
+									{
+										fprintf(stderr, "ERROR: FilterLayers invalid\n");
+										exit(1);
+									}
+									cubeDetector.filterLayers[indLayer] = true;
+									numberOfFilterLayers++;
+								}
+							}
 						}
                     }
+					CubeDetectorsMap.insert(std::pair<int, CubeDetector>(numberOfFilterLayers, cubeDetector));
                 }
             }
         }
@@ -373,6 +402,7 @@ bool ParseInputFile(char* fileName, InputInfo* input)
         }
         else if (strcmp(node->Value(), "RingDetectors") == 0)
         {
+			RingDetector ringDetector;
 			input->ringDetector = new RingDetector[input->numberOfRingDetectors];
             TiXmlElement* detectorsChild = node->FirstChildElement();
             int i = 0;
@@ -383,9 +413,13 @@ bool ParseInputFile(char* fileName, InputInfo* input)
 					fprintf(stderr, "ERROR: number of ring detectors invalid\n");
 					exit(1);
 				}
-                if (strcmp(detectorsChild->Value(), "Detector") == 0)
+                if (strcmp(detectorsChild->Value(), "RingDetector") == 0)
                 {
-					input->ringDetector[i].targetLayer = 1;
+					for(int j = 0; j < MAX_LAYERS; j++)
+					{
+						ringDetector.filterLayers[j] = true;
+					}
+					int numberOfFilterLayers = MAX_LAYERS;
                     TiXmlElement* detectorChild = detectorsChild->FirstChildElement();
                     for (detectorChild; detectorChild; detectorChild = detectorChild->NextSiblingElement())
                     {
@@ -396,31 +430,52 @@ bool ParseInputFile(char* fileName, InputInfo* input)
                             {
                                 if (strcmp(centerChild->Value(), "X") == 0)
                                 {
-                                    input->ringDetector[i].center.x = atof(centerChild->GetText());
+                                    ringDetector.center.x = atof(centerChild->GetText());
                                 }
                                 else if (strcmp(centerChild->Value(), "Y") == 0)
                                 {
-                                    input->ringDetector[i].center.y = atof(centerChild->GetText());
+                                    ringDetector.center.y = atof(centerChild->GetText());
                                 }
                                 else if (strcmp(centerChild->Value(), "Z") == 0)
                                 {
-                                    input->ringDetector[i].center.z = atof(centerChild->GetText());
+                                    ringDetector.center.z = atof(centerChild->GetText());
                                 }
                             }
                         }
                         else if (strcmp(detectorChild->Value(), "SmallRadius") == 0)
                         {
-							input->ringDetector[i].smallRadius = atof(detectorChild->GetText());
+							ringDetector.smallRadius = atof(detectorChild->GetText());
                         }
 						else if (strcmp(detectorChild->Value(), "BigRadius") == 0)
                         {
-							input->ringDetector[i].bigRadius = atof(detectorChild->GetText());
+							ringDetector.bigRadius = atof(detectorChild->GetText());
                         }
-						else if (strcmp(detectorChild->Value(), "TargetLayer") == 0)
+						
+						else if (strcmp(detectorChild->Value(), "Filter") == 0)
 						{
-							input->ringDetector[i].targetLayer = atoi(detectorChild->GetText());
+							for(int j = 0; j < MAX_LAYERS; j++)
+							{
+								ringDetector.filterLayers[j] = false;
+							}
+							numberOfFilterLayers = 0;
+							TiXmlElement* filterChild = detectorChild->FirstChildElement();
+							int j = 0;
+							for (filterChild; filterChild; filterChild = filterChild->NextSiblingElement(), ++j)
+							{
+								if (j >= MAX_LAYERS)
+								{
+									fprintf(stderr, "ERROR: number of FilterLayers invalid\n");
+									exit(1);
+								}
+								if (strcmp(filterChild->Value(), "Layer") == 0)
+								{
+									ringDetector.filterLayers[atoi(filterChild->GetText())] = true;
+									numberOfFilterLayers++;
+								}
+							}
 						}
                     }
+					RingDetectorsMap.insert(std::pair<int, RingDetector>(numberOfFilterLayers, ringDetector));
                 }
             }
         }
@@ -429,6 +484,21 @@ bool ParseInputFile(char* fileName, InputInfo* input)
             input->numberOfSurfaces = atoi(node->GetText());
         }
     }
+	
+	int i = 0;
+	auto cit = CubeDetectorsMap.begin();
+	for (cit = CubeDetectorsMap.begin(); cit != CubeDetectorsMap.end(); ++cit)
+	{
+		input->cubeDetector[i] = cit->second;
+		i++;
+	}
+	i = 0;
+	auto rit = RingDetectorsMap.begin();
+	for (rit = RingDetectorsMap.begin(); rit != RingDetectorsMap.end(); ++rit)
+	{
+		input->ringDetector[i] = rit->second;
+		i++;
+	}
 
     return true;
 }

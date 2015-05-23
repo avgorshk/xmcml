@@ -184,9 +184,14 @@ int ReadSectionDetectorWeights(FILE* file, OutputInfo* output)
     if (reading_items < 1 || numberOfDetectors != output->numberOfDetectors)
         return -1;
 
-    reading_items = fread(output->weightInDetector, sizeof(double), numberOfDetectors, file);
+	double* weightInDetector = new double[numberOfDetectors];
+    reading_items = fread(weightInDetector, sizeof(double), numberOfDetectors, file);
     if (reading_items < numberOfDetectors)
         return -1;
+	for(int i = 0; i < numberOfDetectors; i++)
+	{
+		output->detectorInfo[i].weight = weightInDetector[i];
+	}
 
     return 0;
 }
@@ -213,15 +218,15 @@ int ReadSectionDetectorTrajectories(FILE* file, OutputInfo* output)
 
     for (int i = 0; i < numberOfDetectors; ++i)
     {
-        reading_items = fread(&(output->detectorTrajectory[i].numberOfPhotons), sizeof(uint64), 1, file);
+        reading_items = fread(&(output->detectorInfo[i].numberOfPhotons), sizeof(uint64), 1, file);
         if (reading_items < 1)
             return -1;
 
         reading_items = fread(&trajectorySize, sizeof(int), 1, file);
-        if (reading_items < 1 || trajectorySize != output->detectorTrajectory[i].trajectorySize)
+        if (reading_items < 1 || trajectorySize != output->detectorInfo[i].trajectorySize)
             return -1;
 
-        reading_items = fread(output->detectorTrajectory[i].trajectory, sizeof(uint64), trajectorySize, file);
+        reading_items = fread(output->detectorInfo[i].trajectory, sizeof(uint64), trajectorySize, file);
         if (reading_items < trajectorySize)
             return -1;
     }
@@ -253,25 +258,25 @@ int ReadSectionDetectorTimeScale(FILE* file, OutputInfo* output)
     for (int i = 0; i < numberOfDetectors; ++i)
     {
         reading_items = fread(&timeScaleSize, sizeof(int), 1, file);
-        if (reading_items < 1 || timeScaleSize != output->detectorTrajectory[i].timeScaleSize)
+        if (reading_items < 1 || timeScaleSize != output->detectorInfo[i].timeScaleSize)
             return -1;
 
         for (int j = 0; j < timeScaleSize; ++j)
         {
             reading_items = fread(&timeStart, sizeof(double), 1, file);
-            if (reading_items < 1 || timeStart != output->detectorTrajectory[i].timeScale[j].timeStart)
+            if (reading_items < 1 || timeStart != output->detectorInfo[i].timeScale[j].timeStart)
                 return -1;
 
             reading_items = fread(&timeFinish, sizeof(double), 1, file);
-            if (reading_items < 1 || timeFinish != output->detectorTrajectory[i].timeScale[j].timeFinish)
+            if (reading_items < 1 || timeFinish != output->detectorInfo[i].timeScale[j].timeFinish)
                 return -1;
 
-            reading_items = fread(&(output->detectorTrajectory[i].timeScale[j].numberOfPhotons), 
+            reading_items = fread(&(output->detectorInfo[i].timeScale[j].numberOfPhotons), 
                 sizeof(uint64), 1, file);
             if (reading_items < 1)
                 return -1;
 
-            reading_items = fread(&(output->detectorTrajectory[i].timeScale[j].weight), 
+            reading_items = fread(&(output->detectorInfo[i].timeScale[j].weight), 
                 sizeof(double), 1, file);
             if (reading_items < 1)
                 return -1;

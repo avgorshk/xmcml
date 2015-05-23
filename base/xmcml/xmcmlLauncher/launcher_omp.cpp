@@ -19,49 +19,47 @@ void InitOutput(InputInfo* input, OutputInfo* output)
     
 	int numberOfDetectors = input->numberOfCubeDetectors + input->numberOfRingDetectors;
     output->numberOfDetectors = numberOfDetectors;
-    output->weightInDetector = new double[numberOfDetectors];
-    memset(output->weightInDetector, 0, numberOfDetectors * sizeof(double));
     
-    output->detectorTrajectory = new DetectorTrajectory[numberOfDetectors];
+    output->detectorInfo = new DetectorInfo[numberOfDetectors];
     for (int i = 0; i < numberOfDetectors; ++i)
     {
-        output->detectorTrajectory[i].numberOfPhotons = 0;
-        output->detectorTrajectory[i].trajectorySize = gridSize;
-        output->detectorTrajectory[i].trajectory = new uint64[gridSize];
-        memset(output->detectorTrajectory[i].trajectory, 0, gridSize * sizeof(uint64));
-        output->detectorTrajectory[i].timeScaleSize = input->timeScaleSize;
-        output->detectorTrajectory[i].timeScale = new TimeInfo[input->timeScaleSize];
+		output->detectorInfo[i].weight = 0;
+        output->detectorInfo[i].numberOfPhotons = 0;
+        output->detectorInfo[i].trajectorySize = gridSize;
+        output->detectorInfo[i].trajectory = new uint64[gridSize];
+        memset(output->detectorInfo[i].trajectory, 0, gridSize * sizeof(uint64));
+        output->detectorInfo[i].timeScaleSize = input->timeScaleSize;
+        output->detectorInfo[i].timeScale = new TimeInfo[input->timeScaleSize];
 
         double timeStep = (input->timeFinish - input->timeStart) / input->timeScaleSize;
         if (timeStep < 0.0) timeStep = 0.0;
         for (int j = 0; j < input->timeScaleSize - 1; ++j)
         {
-            output->detectorTrajectory[i].timeScale[j].numberOfPhotons = 0;
-            output->detectorTrajectory[i].timeScale[j].weight = 0.0;
-            output->detectorTrajectory[i].timeScale[j].timeStart = 
+            output->detectorInfo[i].timeScale[j].numberOfPhotons = 0;
+            output->detectorInfo[i].timeScale[j].weight = 0.0;
+            output->detectorInfo[i].timeScale[j].timeStart = 
                 input->timeStart + j * timeStep;
-            output->detectorTrajectory[i].timeScale[j].timeFinish = 
-                output->detectorTrajectory[i].timeScale[j].timeStart + timeStep;
+            output->detectorInfo[i].timeScale[j].timeFinish = 
+                output->detectorInfo[i].timeScale[j].timeStart + timeStep;
         }
-        output->detectorTrajectory[i].timeScale[input->timeScaleSize - 1].numberOfPhotons = 0;
-        output->detectorTrajectory[i].timeScale[input->timeScaleSize - 1].weight = 0.0;
-        output->detectorTrajectory[i].timeScale[input->timeScaleSize - 1].timeStart = 
+        output->detectorInfo[i].timeScale[input->timeScaleSize - 1].numberOfPhotons = 0;
+        output->detectorInfo[i].timeScale[input->timeScaleSize - 1].weight = 0.0;
+        output->detectorInfo[i].timeScale[input->timeScaleSize - 1].timeStart = 
             input->timeStart + (input->timeScaleSize - 1) * timeStep;
-        output->detectorTrajectory[i].timeScale[input->timeScaleSize - 1].timeFinish = 
+        output->detectorInfo[i].timeScale[input->timeScaleSize - 1].timeFinish = 
             input->timeFinish;
-		output->detectorTrajectory[i].otherRange = 0.0;
-		output->detectorTrajectory[i].targetRange = 0.0;
+		output->detectorInfo[i].targetRange = 0.0;
     }
 }
 
 void InitThreadOutput(OutputInfo* dst, OutputInfo* src)
 {
     dst->gridSize = src->gridSize;
-    dst->detectorTrajectory = src->detectorTrajectory;
+    dst->detectorInfo = src->detectorInfo;
     dst->numberOfDetectors = src->numberOfDetectors;
     dst->numberOfPhotons = src->numberOfPhotons;
     dst->specularReflectance = src->specularReflectance;
-    dst->weightInDetector = src->weightInDetector;
+	//dst->detectorInfo->weight = src->detectorInfo->weight;
     
     dst->absorption = new double[dst->gridSize];
     memset(dst->absorption, 0, dst->gridSize*sizeof(double));
@@ -75,24 +73,20 @@ void FreeOutput(OutputInfo* output)
         {
             delete[] output->absorption;
         }
-        if (output->weightInDetector != NULL)
-        {
-            delete[] output->weightInDetector;
-        }
-        if (output->detectorTrajectory != NULL)
+        if (output->detectorInfo != NULL)
         {
             for (int i = 0; i < output->numberOfDetectors; ++i)
             {
-                if (output->detectorTrajectory[i].trajectory != NULL)
+                if (output->detectorInfo[i].trajectory != NULL)
                 {
-                    delete[] output->detectorTrajectory[i].trajectory;
+                    delete[] output->detectorInfo[i].trajectory;
                 }
-                if (output->detectorTrajectory[i].timeScale != NULL)
+                if (output->detectorInfo[i].timeScale != NULL)
                 {
-                    delete[] output->detectorTrajectory[i].timeScale;
+                    delete[] output->detectorInfo[i].timeScale;
                 }
             }
-            delete[] output->detectorTrajectory;
+            delete[] output->detectorInfo;
         }
     }
 }

@@ -19,7 +19,7 @@ typedef struct __CubeDetector
 {
     double3 center;
     double3 length;
-	int targetLayer;
+	bool filterLayers[MAX_LAYERS];
 } CubeDetector;
 
 typedef struct __RingDetector
@@ -27,19 +27,19 @@ typedef struct __RingDetector
 	double3 center;
 	double smallRadius;
 	double bigRadius;
-	int targetLayer;
+	bool filterLayers[MAX_LAYERS];
 } RingDetector;
 
-typedef struct __DetectorTrajectory
+typedef struct __DetectorInfo 
 {
     uint64 numberOfPhotons;
     uint64* trajectory;
     int trajectorySize;
     TimeInfo* timeScale;
     int timeScaleSize;
-	double otherRange;
 	double targetRange;
-} DetectorTrajectory;
+	double weight;
+} DetectorInfo;
 
 typedef struct __WeightIntegralTable
 {
@@ -93,8 +93,7 @@ typedef struct __OutputInfo
 	double specularReflectance;
 	double* absorption;
     int gridSize;
-    double* weightInDetector;
-    DetectorTrajectory* detectorTrajectory;
+    DetectorInfo* detectorInfo;
     int numberOfDetectors;
 } OutputInfo;
 

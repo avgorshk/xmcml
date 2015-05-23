@@ -226,7 +226,7 @@ static int WriteSectionDetectorWeights(FILE* file, double* detectorWeights, int 
     return 0;
 }
 
-static int WriteSectionDetectorTrajectories(FILE* file, DetectorTrajectory* detectorTrajectory, 
+static int WriteSectionDetectorTrajectories(FILE* file, DetectorInfo* detectorInfo, 
     int numberOfDetectors)
 {
     unsigned long long int written_items;
@@ -239,7 +239,7 @@ static int WriteSectionDetectorTrajectories(FILE* file, DetectorTrajectory* dete
     unsigned int section_lenght = sizeof(int);
     for (int i = 0; i < numberOfDetectors; ++i)
     {
-        section_lenght += sizeof(uint64) + sizeof(int) + detectorTrajectory[i].trajectorySize * sizeof(uint64);
+        section_lenght += sizeof(uint64) + sizeof(int) + detectorInfo[i].trajectorySize * sizeof(uint64);
     }
 
     written_items = fwrite(&section_lenght, sizeof(unsigned int), 1, file);
@@ -252,24 +252,24 @@ static int WriteSectionDetectorTrajectories(FILE* file, DetectorTrajectory* dete
 
     for (int i = 0; i < numberOfDetectors; ++i)
     {
-        written_items = fwrite(&(detectorTrajectory[i].numberOfPhotons), sizeof(uint64), 1, file);
+        written_items = fwrite(&(detectorInfo[i].numberOfPhotons), sizeof(uint64), 1, file);
         if (written_items < 1)
             return -1;
 
-        written_items = fwrite(&(detectorTrajectory[i].trajectorySize), sizeof(int), 1, file);
+        written_items = fwrite(&(detectorInfo[i].trajectorySize), sizeof(int), 1, file);
         if (written_items < 1)
             return -1;
 
-        written_items = fwrite(detectorTrajectory[i].trajectory, sizeof(uint64), 
-            detectorTrajectory[i].trajectorySize, file);
-        if (written_items < detectorTrajectory[i].trajectorySize)
+        written_items = fwrite(detectorInfo[i].trajectory, sizeof(uint64), 
+            detectorInfo[i].trajectorySize, file);
+        if (written_items < detectorInfo[i].trajectorySize)
             return -1;
     }
 
     return 0;
 }
 
-static int WriteSectionDetectorTimeScale(FILE* file, DetectorTrajectory* detectorTrajectory, 
+static int WriteSectionDetectorTimeScale(FILE* file, DetectorInfo* detectorInfo, 
     int numberOfDetectors)
 {
     unsigned long long int written_items;
@@ -283,7 +283,7 @@ static int WriteSectionDetectorTimeScale(FILE* file, DetectorTrajectory* detecto
     for (int i = 0; i < numberOfDetectors; ++i)
     {
         section_lenght += sizeof(int) + 
-            detectorTrajectory[i].timeScaleSize * (3 * sizeof(double) + sizeof(uint64));
+            detectorInfo[i].timeScaleSize * (3 * sizeof(double) + sizeof(uint64));
     }
     
     written_items = fwrite(&section_lenght, sizeof(unsigned int), 1, file);
@@ -296,28 +296,28 @@ static int WriteSectionDetectorTimeScale(FILE* file, DetectorTrajectory* detecto
 
     for (int i = 0; i < numberOfDetectors; ++i)
     {
-        written_items = fwrite(&(detectorTrajectory[i].timeScaleSize), sizeof(int), 1, file);
+        written_items = fwrite(&(detectorInfo[i].timeScaleSize), sizeof(int), 1, file);
         if (written_items < 1)
             return -1;
 
-        for (int j = 0; j < detectorTrajectory[i].timeScaleSize; ++j)
+        for (int j = 0; j < detectorInfo[i].timeScaleSize; ++j)
         {
-            written_items = fwrite(&(detectorTrajectory[i].timeScale[j].timeStart), 
+            written_items = fwrite(&(detectorInfo[i].timeScale[j].timeStart), 
                 sizeof(double), 1, file);
             if (written_items < 1)
                 return -1;
 
-            written_items = fwrite(&(detectorTrajectory[i].timeScale[j].timeFinish), 
+            written_items = fwrite(&(detectorInfo[i].timeScale[j].timeFinish), 
                 sizeof(double), 1, file);
             if (written_items < 1)
                 return -1;
 
-            written_items = fwrite(&(detectorTrajectory[i].timeScale[j].numberOfPhotons), 
+            written_items = fwrite(&(detectorInfo[i].timeScale[j].numberOfPhotons), 
                 sizeof(uint64), 1, file);
             if (written_items < 1)
                 return -1;
 
-            written_items = fwrite(&(detectorTrajectory[i].timeScale[j].weight), 
+            written_items = fwrite(&(detectorInfo[i].timeScale[j].weight), 
                 sizeof(double), 1, file);
             if (written_items < 1)
                 return -1;
@@ -364,7 +364,7 @@ static int WriteSectionRandomGenerator(FILE* file, MCG59* randomGenerator, int n
     return 0;
 }
 
-static int WriteSectionDetectorRanges(FILE* file, DetectorTrajectory* detectorTrajectory, int numberOfDetectors)
+static int WriteSectionDetectorRanges(FILE* file, DetectorInfo* detectorInfo, int numberOfDetectors)
 {
     unsigned long long int written_items;
 
@@ -384,11 +384,13 @@ static int WriteSectionDetectorRanges(FILE* file, DetectorTrajectory* detectorTr
 
 	for (int i = 0; i < numberOfDetectors; ++i)
 	{
-		written_items = fwrite(&(detectorTrajectory[i].otherRange), sizeof(double), 1, file);
+		double otherRange = detectorInfo[i].weight - detectorInfo[i].targetRange;
+		double targetRange = detectorInfo[i].targetRange;
+			written_items = fwrite(&(otherRange), sizeof(double), 1, file);
 		if (written_items < 1)
 			return -1;
 
-		written_items = fwrite(&(detectorTrajectory[i].targetRange), sizeof(double), 1, file);
+		written_items = fwrite(&(targetRange), sizeof(double), 1, file);
 		if (written_items < 1)
 			return -1;
 	}
@@ -398,7 +400,14 @@ static int WriteSectionDetectorRanges(FILE* file, DetectorTrajectory* detectorTr
 
 bool WriteOutputToFile(InputInfo* input, OutputInfo* output, char* fileName)
 {
+	double* weightInDetector = new double[output->numberOfDetectors];
     FILE* file = fopen(fileName, "wb");
+
+	for(int i = 0; i < output->numberOfDetectors; i++)
+	{
+		weightInDetector[i] = output->detectorInfo[i].weight;
+	}
+
     if (file == NULL)
         return false;
     
@@ -414,13 +423,13 @@ bool WriteOutputToFile(InputInfo* input, OutputInfo* output, char* fileName)
         return false;
     if (WriteSectionCommonTrajectories(file, output->absorption, output->gridSize) != 0)
         return false;
-    if (WriteSectionDetectorWeights(file, output->weightInDetector, output->numberOfDetectors) != 0)
+    if (WriteSectionDetectorWeights(file, weightInDetector, output->numberOfDetectors) != 0)
         return false;
-    if (WriteSectionDetectorTrajectories(file, output->detectorTrajectory, output->numberOfDetectors) != 0)
+    if (WriteSectionDetectorTrajectories(file, output->detectorInfo, output->numberOfDetectors) != 0)
         return false;
-    if (WriteSectionDetectorTimeScale(file, output->detectorTrajectory, output->numberOfDetectors) != 0)
+    if (WriteSectionDetectorTimeScale(file, output->detectorInfo, output->numberOfDetectors) != 0)
         return false;
-	if (WriteSectionDetectorRanges(file, output->detectorTrajectory, output->numberOfDetectors) != 0)
+	if (WriteSectionDetectorRanges(file, output->detectorInfo, output->numberOfDetectors) != 0)
 		return false;
 
     fflush(file);
@@ -432,12 +441,18 @@ bool WriteOutputToFile(InputInfo* input, OutputInfo* output, char* fileName)
 bool WriteBackupToFile(InputInfo* input, OutputInfo* output, MCG59* randomGenerator, 
     int numThreadsPerProcess, int numProcesses)
 {
+	double* weightInDetector = new double[output->numberOfDetectors];
     FILE* file = NULL;
     char fileName[128];
 
     char* buffer = NumberToString(input->numberOfPhotons);
     sprintf(fileName, "xmcml_%s.mcml.bk", buffer);
     delete[] buffer;
+
+	for(int i = 0; i < output->numberOfDetectors; i++)
+	{
+		weightInDetector[i] = output->detectorInfo[i].weight;
+	}
 
     file = fopen(fileName, "wb");
     if (file == NULL)
@@ -455,11 +470,11 @@ bool WriteBackupToFile(InputInfo* input, OutputInfo* output, MCG59* randomGenera
         return false;
     if (WriteSectionCommonTrajectories(file, output->absorption, output->gridSize) != 0)
         return false;
-    if (WriteSectionDetectorWeights(file, output->weightInDetector, output->numberOfDetectors) != 0)
+    if (WriteSectionDetectorWeights(file, weightInDetector, output->numberOfDetectors) != 0)
         return false;
-    if (WriteSectionDetectorTrajectories(file, output->detectorTrajectory, output->numberOfDetectors) != 0)
+    if (WriteSectionDetectorTrajectories(file, output->detectorInfo, output->numberOfDetectors) != 0)
         return false;
-    if (WriteSectionDetectorTimeScale(file, output->detectorTrajectory, output->numberOfDetectors) != 0)
+    if (WriteSectionDetectorTimeScale(file, output->detectorInfo, output->numberOfDetectors) != 0)
         return false;
     if (WriteSectionRandomGenerator(file, randomGenerator, numThreadsPerProcess, numProcesses) != 0)
         return false;

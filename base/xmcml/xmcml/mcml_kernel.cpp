@@ -11,6 +11,7 @@
 #define COSINE_OF_ZERO (1.0 - 1.0E-12)
 #define COSINE_OF_90D  1.0E-12
 #define MIN_DISTANCE   1.0E-8
+#define START_PHOTON_WEIGHT 1.0
 
 double ComputeSpecularReflectance(LayerInfo* layer)
 {
@@ -126,7 +127,7 @@ void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* out
 
 void LaunchPhoton(InputInfo* input, PhotonState* photon, double specularReflectance)
 {
-	photon->weight = 1.0 - specularReflectance;
+	photon->weight = START_PHOTON_WEIGHT - specularReflectance;
 	photon->isDead = false;
 	photon->layerId = 1;
 	photon->step = 0.0;
@@ -676,7 +677,15 @@ int GetDetectorId(PhotonState* photon, InputInfo* input)
             (photon->position.y < (input->cubeDetector[i].center.y + halfLength.y)) &&
             (photon->position.z >= (input->cubeDetector[i].center.z - halfLength.z)) &&
             (photon->position.z < (input->cubeDetector[i].center.z + halfLength.z));
-		bool isPhotonVisitedTargetLayer = photon->visitedLayers[input->cubeDetector[i].targetLayer];
+		bool isPhotonVisitedTargetLayer = false;
+		for(int j = 0; j < MAX_LAYERS; ++j)
+		{
+			if((photon->visitedLayers[j])&&(input->cubeDetector[i].filterLayers[j]))
+			{
+				isPhotonVisitedTargetLayer = true;
+				break;
+			}
+		}
         if (isPhotonInDetector && isPhotonVisitedTargetLayer)
         {  
             return i;
@@ -691,7 +700,15 @@ int GetDetectorId(PhotonState* photon, InputInfo* input)
 			(photon->position.y - input->ringDetector[i].center.y)));
 		bool isPhotonInDetector = ((distance >= input->ringDetector[i].smallRadius) && 
 			(distance < input->ringDetector[i].bigRadius));
-		bool isPhotonVisitedTargetLayer = photon->visitedLayers[input->ringDetector[i].targetLayer];
+		bool isPhotonVisitedTargetLayer = false;
+		for(int j = 0; j < MAX_LAYERS; ++j)
+			{
+				if((photon->visitedLayers[j])&&(input->ringDetector[i].filterLayers[j]))
+				{
+					isPhotonVisitedTargetLayer = true;
+					break;
+				}
+			}
 		if (isPhotonInDetector && isPhotonVisitedTargetLayer)
         {
             return input->numberOfCubeDetectors + i;
@@ -704,7 +721,7 @@ int GetDetectorId(PhotonState* photon, InputInfo* input)
 void UpdateWeightInDetector(OutputInfo* output, double photonWeight, int detectorId)
 {
     #pragma omp atomic
-	output->weightInDetector[detectorId] += photonWeight;
+	output->detectorInfo[detectorId].weight += photonWeight;
 }
 
 void UpdatePhotonTrajectory(PhotonState* photon, InputInfo* input, PhotonTrajectory* trajectory, 
@@ -751,7 +768,7 @@ void UpdatePhotonTrajectory(PhotonState* photon, InputInfo* input, PhotonTraject
 void UpdateDetectorTrajectory(OutputInfo* output, Area* area, PhotonTrajectory* trajectory, int detectorId)
 {
     int index;
-    uint64* detectorTrajectory = output->detectorTrajectory[detectorId].trajectory;
+    uint64* detectorTrajectory = output->detectorInfo[detectorId].trajectory;
 
     for (int i = 0; i < trajectory->position; ++i)
     {
@@ -763,13 +780,13 @@ void UpdateDetectorTrajectory(OutputInfo* output, Area* area, PhotonTrajectory* 
     }
 
     #pragma omp atomic
-    ++(output->detectorTrajectory[detectorId].numberOfPhotons);
+    ++(output->detectorInfo[detectorId].numberOfPhotons);
 }
 
 void UpdateDetectorTimeScale(OutputInfo* output, PhotonState* photon, int detectorId)
 {
-    int timeScaleSize = output->detectorTrajectory[detectorId].timeScaleSize;
-    TimeInfo* timeScale = output->detectorTrajectory[detectorId].timeScale;
+    int timeScaleSize = output->detectorInfo[detectorId].timeScaleSize;
+    TimeInfo* timeScale = output->detectorInfo[detectorId].timeScale;
     for (int i = 0; i < timeScaleSize - 1; ++i)
     {
         if ((photon->time >= timeScale[i].timeStart) && (photon->time < timeScale[i].timeFinish))
@@ -795,13 +812,9 @@ void UpdateDetectorTimeScale(OutputInfo* output, PhotonState* photon, int detect
 
 void UpdateDetectorRanges(OutputInfo* output, PhotonState* photon, int detectorId)
 {
-	double totalRange  = photon->targetRange + photon->otherRange;
-	double targetRange = photon->weight * (photon->targetRange / totalRange);
-	double otherRange  = photon->weight * (photon->otherRange  / totalRange);	
+	double totalRange = photon->targetRange + photon->otherRange;
+	double targetRange = photon->targetRange * (photon->weight / totalRange);
 	
 	#pragma omp atomic
-	output->detectorTrajectory[detectorId].targetRange += targetRange;
-
-	#pragma omp atomic
-	output->detectorTrajectory[detectorId].otherRange  += otherRange;
+	output->detectorInfo[detectorId].targetRange += targetRange;
 }

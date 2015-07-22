@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>mpiexec -n 2 xmcmlLauncher -i diffuse_830_ring2.xml -o o1.mcml.out -s simple_tube2.surface -nthreads 2</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <MpiDebuggerSchedulerNode>localhost/2</MpiDebuggerSchedulerNode>
+    <MpiDebuggerApplicationCommand>
+    </MpiDebuggerApplicationCommand>
+    <MpiDebuggerApplicationArguments>-i air_only_830.xml -s intralipid_only.surface -o res.mcml.out -nthreads 1</MpiDebuggerApplicationArguments>
+    <MpiDebuggerMpiExecCommand>C:\Program Files\Microsoft HPC Pack 2008 R2\Bin\mpiexec.exe</MpiDebuggerMpiExecCommand>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-i diffuse_830_ring.xml -o skin_1.mcml.out -s skin.surface -nthreads 2</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <MpiDebuggerSchedulerNode>localhost/2</MpiDebuggerSchedulerNode>
+    <MpiDebuggerApplicationArguments>-i air_only_830.xml -s intralipid_only.surface -o res.mcml.out -nthreads 1 &gt; 1.txt</MpiDebuggerApplicationArguments>
+    <MpiDebuggerMpiExecCommand>C:\Program Files\Microsoft HPC Pack 2008 R2\Bin\mpiexec.exe</MpiDebuggerMpiExecCommand>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>-i diffuse_830_ring.xml -s simple_tube2.surface -o res830.mcml.out</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommandArguments>-i diffuse_830_ring.xml -s simple_tube2.surface -o res830.mcml.out</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>

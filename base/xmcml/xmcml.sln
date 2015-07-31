@@ -1,9 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmcml", "xmcml\xmcml.vcxproj", "{91108736-7C41-4EFA-8E25-530E7FFE559A}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmcml_tests", "xmcml_tests\xmcml_tests.vcxproj", "{2AB041F2-8E84-4BC9-8990-429E99DC89BC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmcmlLauncher", "xmcmlLauncher\xmcmlLauncher.vcxproj", "{BDDE1136-D3ED-4047-8073-94D977CD1B56}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -26,14 +26,6 @@ Global
 		{91108736-7C41-4EFA-8E25-530E7FFE559A}.Release|Win32.Build.0 = Release|Win32
 		{91108736-7C41-4EFA-8E25-530E7FFE559A}.Release|x64.ActiveCfg = Release|x64
 		{91108736-7C41-4EFA-8E25-530E7FFE559A}.Release|x64.Build.0 = Release|x64
-		{2AB041F2-8E84-4BC9-8990-429E99DC89BC}.Debug|Win32.ActiveCfg = Debug|Win32
-		{2AB041F2-8E84-4BC9-8990-429E99DC89BC}.Debug|Win32.Build.0 = Debug|Win32
-		{2AB041F2-8E84-4BC9-8990-429E99DC89BC}.Debug|x64.ActiveCfg = Debug|x64
-		{2AB041F2-8E84-4BC9-8990-429E99DC89BC}.Debug|x64.Build.0 = Debug|x64
-		{2AB041F2-8E84-4BC9-8990-429E99DC89BC}.Release|Win32.ActiveCfg = Release|Win32
-		{2AB041F2-8E84-4BC9-8990-429E99DC89BC}.Release|Win32.Build.0 = Release|Win32
-		{2AB041F2-8E84-4BC9-8990-429E99DC89BC}.Release|x64.ActiveCfg = Release|x64
-		{2AB041F2-8E84-4BC9-8990-429E99DC89BC}.Release|x64.Build.0 = Release|x64
 		{BDDE1136-D3ED-4047-8073-94D977CD1B56}.Debug|Win32.ActiveCfg = Debug|Win32
 		{BDDE1136-D3ED-4047-8073-94D977CD1B56}.Debug|Win32.Build.0 = Debug|Win32
 		{BDDE1136-D3ED-4047-8073-94D977CD1B56}.Debug|x64.ActiveCfg = Debug|x64

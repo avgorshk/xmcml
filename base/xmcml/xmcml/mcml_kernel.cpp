@@ -459,7 +459,7 @@ double3 GetNewPhotonDirection(PhotonState* photon, double anisotropy, MCG59* ran
 	double cosPsi = cos(psi);
 	double sinPsi = sin(psi);
 
-	if (abs(uz) <= COSINE_OF_ZERO)
+	if (fabs(uz) <= COSINE_OF_ZERO)
 	{
 		temp = sqrt(1.0 - uz * uz);
 		result.x = sinTheta * (ux * uz * cosPsi - uy * sinPsi) / temp + ux * cosTheta;

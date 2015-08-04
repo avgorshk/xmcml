@@ -437,27 +437,39 @@ namespace mcmlVisualizer
                 ulong numberOfPhotons = parser.GetNumberOfPhotons();
                 int numberOfDetectors = parser.GetNumberOfDetectors();
                 StreamWriter writer = new StreamWriter(sfd.FileName);
-                
-                writer.Write("Detector/Time");
+
                 TimeInfo[] timeInfo = parser.GetDetectorTimeScale(0);
-                foreach (TimeInfo element in timeInfo)
-                {
-                    writer.Write('\t');
-                    writer.Write(element.timeStart);
-                }
-                writer.WriteLine();
+                double[,] data = new double[timeInfo.Length, numberOfDetectors];
 
                 for (int i = 0; i < numberOfDetectors; ++i)
                 {
-                    timeInfo = parser.GetDetectorTimeScale(i);
-                    writer.Write(i);
-                    foreach (TimeInfo element in timeInfo)
+                    TimeInfo[] info = parser.GetDetectorTimeScale(i);
+                    if (info.Length != timeInfo.Length) throw new Exception();
+                    for (int j = 0; j < info.Length; ++j)
                     {
-                        writer.Write('\t');
-                        writer.Write(element.weight / numberOfPhotons);
+                        data[j, i] = info[j].weight / numberOfPhotons;
+                    }
+                }
+
+                writer.Write("Time / Detector");
+                for (int i = 0; i < numberOfDetectors; ++i)
+                {
+                    writer.Write("\t");
+                    writer.Write(i);
+                }
+                writer.WriteLine();
+
+                for (int i = 0; i < timeInfo.Length; ++i)
+                {
+                    writer.Write(timeInfo[i].timeFinish);
+                    for (int j = 0; j < numberOfDetectors; ++j)
+                    {
+                        writer.Write("\t");
+                        writer.Write(data[i, j]);
                     }
                     writer.WriteLine();
                 }
+
                 writer.Flush();
                 writer.Close();
             }

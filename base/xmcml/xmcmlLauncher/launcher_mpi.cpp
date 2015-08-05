@@ -327,6 +327,7 @@ void DoBackup(InputInfo* input, OutputInfo* output, MCG59* randomGenerator, int 
         for (int i = 0; i < output->numberOfDetectors; ++i)
         {
 			output->detectorInfo[i].weight = 0;
+			output->detectorInfo[i].targetRange = 0;
             output->detectorInfo[i].numberOfPhotons = 0;
             memset(output->detectorInfo[i].trajectory, 0, 
                 output->detectorInfo[i].trajectorySize * sizeof(uint64));

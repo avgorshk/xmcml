@@ -3,6 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <MpiDebuggerSchedulerNode>localhost/4</MpiDebuggerSchedulerNode>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>-i skin1.xml -o o2_1.xmcml.out -s skin10.surface -nthreads 1</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>-i diffuse_830_ring.xml -o skin_2.mcml.out -s skin.surface -nthreads 2</LocalDebuggerCommandArguments>

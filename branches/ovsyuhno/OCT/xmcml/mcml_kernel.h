@@ -9,14 +9,14 @@
 //Public
 double ComputeSpecularReflectance(LayerInfo* layer);
 void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* output, 
-    MCG59* randomGenerator, PhotonTrajectory* trajectory);
+    MCG59* randomGenerator, PhotonTrajectory* trajectory, int* debind);
 
 //Private
 void LaunchPhoton(InputInfo* input, PhotonState* photon, double specularReflectance);
 void MovePhoton(PhotonState* photon);
 int GetAreaIndex(double3 photonPosition, Area* area);
 void CrossBoundary(PhotonState* photon, InputInfo* input, OutputInfo* output, 
-    IntersectionInfo* intersection, MCG59* randomGenerator, PhotonTrajectory* trajectory);
+    IntersectionInfo* intersection, MCG59* randomGenerator, PhotonTrajectory* trajectory, int* debind);
 void ComputePhotonDirectionWithBiasing(PhotonState* photon, InputInfo* input, MCG59* randomGenerator);
 double ComputeCosineTheta(double anisotropy, MCG59* randomGenerator);
 double ComputeTransmitCosine(double incidentRefractiveIndex, double transmitRefractiveIndex, 

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>mpiexec -n 2 xmcmlLauncher -i diffuse_830_ring2.xml -o o1.mcml.out -s simple_tube2.surface -nthreads 2</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-i skin1.xml -o o1.mcml.out -s skin10.surface -nthreads 1</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <MpiDebuggerSchedulerNode>localhost/2</MpiDebuggerSchedulerNode>
     <MpiDebuggerApplicationCommand>

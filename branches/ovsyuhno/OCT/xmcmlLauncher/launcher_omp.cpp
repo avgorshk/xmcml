@@ -106,6 +106,7 @@ int GetMaxThreads()
 
 void LaunchOMP(InputInfo* input, OutputInfo* output, MCG59* randomGenerator, int numThreads)
 {
+	int debind = 0;
     omp_set_num_threads(numThreads);
 
     double specularReflectance = ComputeSpecularReflectance(input->layerInfo);
@@ -124,7 +125,7 @@ void LaunchOMP(InputInfo* input, OutputInfo* output, MCG59* randomGenerator, int
     {
         int threadId = omp_get_thread_num();
         ComputePhoton(specularReflectance, input, &(threadOutputs[threadId]), 
-            &(randomGenerator[threadId]), &(trajectory[threadId]));
+            &(randomGenerator[threadId]), &(trajectory[threadId]), &debind);
     }
 
     output->specularReflectance = specularReflectance;

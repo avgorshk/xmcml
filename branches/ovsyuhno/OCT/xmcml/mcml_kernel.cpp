@@ -50,8 +50,9 @@ void ComputePosition(MCG59* randomGenerator, PhotonState* photon, double standar
 }
 
 void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* output, 
-    MCG59* randomGenerator, PhotonTrajectory* trajectory)
+    MCG59* randomGenerator, PhotonTrajectory* trajectory, int* debind)
 {
+	*debind += 1;
     PhotonState photon;
 
     trajectory->position = 0;
@@ -78,7 +79,7 @@ void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* out
                 int areaIndex = GetAreaIndex(photon.position, input->area);
                 if (areaIndex >= 0)
                 {
-                    CrossBoundary(&photon, input, output, &intersection, randomGenerator, trajectory);
+                    CrossBoundary(&photon, input, output, &intersection, randomGenerator, trajectory, debind);
                 }
                 else
                 {
@@ -105,7 +106,7 @@ void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* out
                 int areaIndex = GetAreaIndex(photon.position, input->area);
                 if (areaIndex >= 0)
                 {
-                    CrossBoundary(&photon, input, output, &intersection, randomGenerator, trajectory); 
+                    CrossBoundary(&photon, input, output, &intersection, randomGenerator, trajectory, debind); 
                 }
                 else
                 {
@@ -245,7 +246,7 @@ byte3 GetAreaIndexVector(double3 photonPosition, Area* area)
 }
 
 void CrossBoundary(PhotonState* photon, InputInfo* input, OutputInfo* output, 
-    IntersectionInfo* intersection, MCG59* randomGenerator, PhotonTrajectory* trajectory)
+    IntersectionInfo* intersection, MCG59* randomGenerator, PhotonTrajectory* trajectory, int* debind)
 {
     double reflectance;
     double transmitCos;
@@ -690,7 +691,7 @@ int GetDetectorId(PhotonState* photon, InputInfo* input)
             (photon->position.y < (input->cubeDetector[i].center.y + halfLength.y)) &&
             (photon->position.z >= (input->cubeDetector[i].center.z - halfLength.z)) &&
             (photon->position.z < (input->cubeDetector[i].center.z + halfLength.z));
-		bool isPhotonAngleAplied = (photon->direction.z / (sqrt(photon->direction.x * photon->direction.x + photon->direction.y * photon->direction.y + photon->direction.z * photon->direction.z)) > input->cubeDetector[i].permissibleAngle);
+		bool isPhotonAngleAplied = (-photon->direction.z > input->cubeDetector[i].permissibleAngle);
 		bool isPhotonVisitedTargetLayer = false;
 		for(int j = 0; j < MAX_LAYERS; ++j)
 		{
@@ -714,7 +715,7 @@ int GetDetectorId(PhotonState* photon, InputInfo* input)
 			(photon->position.y - input->ringDetector[i].center.y)));
 		bool isPhotonInDetector = ((distance >= input->ringDetector[i].smallRadius) && 
 			(distance < input->ringDetector[i].bigRadius));
-		bool isPhotonAngleAplied = (photon->direction.z / (sqrt(photon->direction.x * photon->direction.x + photon->direction.y * photon->direction.y + photon->direction.z * photon->direction.z)) > input->ringDetector[i].permissibleAngle);
+		bool isPhotonAngleAplied = (-photon->direction.z > input->ringDetector[i].permissibleAngle);
 		bool isPhotonVisitedTargetLayer = false;
 		for(int j = 0; j < MAX_LAYERS; ++j)
 			{

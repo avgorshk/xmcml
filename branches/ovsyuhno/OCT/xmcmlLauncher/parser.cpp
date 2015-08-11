@@ -340,9 +340,9 @@ bool ParseInputFile(char* fileName, InputInfo* input)
 						if (strcmp(detectorChild->Value(), "PermissibleAngle") == 0)
 						{
 							cubeDetector.permissibleAngle = sin(atof(detectorChild->GetText()) * Pi / 180.0);
-							if((cubeDetector.permissibleAngle < 0) || (cubeDetector.permissibleAngle > 1.0))
+							if(cubeDetector.permissibleAngle < 0)
 							{
-								fprintf(stderr, "ERROR: detectoring angle invalid\n");
+								fprintf(stderr, "ERROR: permissible angle invalid\n");
 								exit(1);
 							}
 						}
@@ -444,9 +444,9 @@ bool ParseInputFile(char* fileName, InputInfo* input)
 						if (strcmp(detectorChild->Value(), "PermissibleAngle") == 0)
 						{
 							ringDetector.permissibleAngle = sin(atof(detectorChild->GetText()) * Pi / 180.0);
-							if((ringDetector.permissibleAngle < 0.0) || (ringDetector.permissibleAngle > 1.0))
+							if(ringDetector.permissibleAngle < 0.0)
 							{
-								fprintf(stderr, "ERROR: detectoring angle invalid\n");
+								fprintf(stderr, "ERROR: permissible angle invalid\n");
 								exit(1);
 							}
 						}

@@ -607,5 +607,103 @@ namespace mcmlVisualizer
                 writer.Close();
             }
         }
+
+        private void MenuItem_SaveTargetTimeScales_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.DefaultExt = "txt";
+            sfd.Filter = "Text file|*.txt";
+
+            if (sfd.ShowDialog() == true && parser != null)
+            {
+                ulong numberOfPhotons = parser.GetNumberOfPhotons();
+                int numberOfDetectors = parser.GetNumberOfDetectors();
+                StreamWriter writer = new StreamWriter(sfd.FileName);
+
+                TimeInfo[] timeInfo = parser.GetDetectorTimeScale(0);
+                double[,] data = new double[timeInfo.Length, numberOfDetectors];
+
+                for (int i = 0; i < numberOfDetectors; ++i)
+                {
+                    TimeInfo[] info = parser.GetDetectorTimeScale(i);
+                    if (info.Length != timeInfo.Length) throw new Exception();
+                    for (int j = 0; j < info.Length; ++j)
+                    {
+                        data[j, i] = info[j].targetWeight / numberOfPhotons;
+                    }
+                }
+
+                writer.Write("Time / Detector");
+                for (int i = 0; i < numberOfDetectors; ++i)
+                {
+                    writer.Write("\t");
+                    writer.Write(i);
+                }
+                writer.WriteLine();
+
+                for (int i = 0; i < timeInfo.Length; ++i)
+                {
+                    writer.Write(timeInfo[i].timeFinish);
+                    for (int j = 0; j < numberOfDetectors; ++j)
+                    {
+                        writer.Write("\t");
+                        writer.Write(data[i, j]);
+                    }
+                    writer.WriteLine();
+                }
+
+                writer.Flush();
+                writer.Close();
+            }
+        }
+
+        private void MenuItem_SaveOtherTimeScales_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.DefaultExt = "txt";
+            sfd.Filter = "Text file|*.txt";
+
+            if (sfd.ShowDialog() == true && parser != null)
+            {
+                ulong numberOfPhotons = parser.GetNumberOfPhotons();
+                int numberOfDetectors = parser.GetNumberOfDetectors();
+                StreamWriter writer = new StreamWriter(sfd.FileName);
+
+                TimeInfo[] timeInfo = parser.GetDetectorTimeScale(0);
+                double[,] data = new double[timeInfo.Length, numberOfDetectors];
+
+                for (int i = 0; i < numberOfDetectors; ++i)
+                {
+                    TimeInfo[] info = parser.GetDetectorTimeScale(i);
+                    if (info.Length != timeInfo.Length) throw new Exception();
+                    for (int j = 0; j < info.Length; ++j)
+                    {
+                        data[j, i] = (info[j].weight - info[j].targetWeight) / numberOfPhotons;
+                    }
+                }
+
+                writer.Write("Time / Detector");
+                for (int i = 0; i < numberOfDetectors; ++i)
+                {
+                    writer.Write("\t");
+                    writer.Write(i);
+                }
+                writer.WriteLine();
+
+                for (int i = 0; i < timeInfo.Length; ++i)
+                {
+                    writer.Write(timeInfo[i].timeFinish);
+                    for (int j = 0; j < numberOfDetectors; ++j)
+                    {
+                        writer.Write("\t");
+                        writer.Write(data[i, j]);
+                    }
+                    writer.WriteLine();
+                }
+
+                writer.Flush();
+                writer.Close();
+            }
+        }
     }
 }

@@ -53,5 +53,6 @@ namespace mcmlVisualizer
         public double timeFinish;
         public UInt64 numberOfPhotons;
         public double weight;
+        public double targetWeight;
     }
 }

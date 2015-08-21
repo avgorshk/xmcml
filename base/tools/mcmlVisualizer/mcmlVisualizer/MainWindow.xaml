@@ -17,7 +17,11 @@
                     <MenuItem Header="Save target ranges for detectors (as is)" Click="MenuItem_SaveTargetRangesForDetectors_Click" />
                     <MenuItem Header="Save target ranges for detectors (normalized)" Click="MenuItem_SaveTargetRangesForDetectorsNormalized_Click" />
                 </MenuItem>
-                <MenuItem Header="Save time scales..." Click="MenuItem_SaveTimeScales_Click"/>
+                <MenuItem Header="Save time scales">
+                    <MenuItem Header="Total..."  Click="MenuItem_SaveTimeScales_Click" />
+                    <MenuItem Header="Target..." Click="MenuItem_SaveTargetTimeScales_Click" />
+                    <MenuItem Header="Other..."  Click="MenuItem_SaveOtherTimeScales_Click" />
+                </MenuItem>
                 <MenuItem Header="Save all as a text..." Click="MenuItem_SaveAsText_Click"/>
                 <MenuItem Header="Exit" Click="MainMenu_Exit_Click" />
             </MenuItem>

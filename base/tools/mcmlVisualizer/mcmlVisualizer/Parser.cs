@@ -271,12 +271,13 @@ namespace mcmlVisualizer
                             timeInfo[j].timeFinish = reader.ReadDouble();
                             timeInfo[j].numberOfPhotons = reader.ReadUInt64();
                             timeInfo[j].weight = reader.ReadDouble();
+                            timeInfo[j].targetWeight = reader.ReadDouble();
                         }
                         return timeInfo;
                     }
                     else
                     {
-                        offset = (uint)(timeScaleSize * (3 * sizeof(double) + sizeof(UInt64)));
+                        offset = (uint)(timeScaleSize * (4 * sizeof(double) + sizeof(UInt64)));
                         reader.BaseStream.Seek(offset, SeekOrigin.Current);
                     }
                 }

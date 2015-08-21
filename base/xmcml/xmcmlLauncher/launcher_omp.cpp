@@ -37,6 +37,7 @@ void InitOutput(InputInfo* input, OutputInfo* output)
         {
             output->detectorInfo[i].timeScale[j].numberOfPhotons = 0;
             output->detectorInfo[i].timeScale[j].weight = 0.0;
+            output->detectorInfo[i].timeScale[j].targetWeight = 0.0;
             output->detectorInfo[i].timeScale[j].timeStart = 
                 input->timeStart + j * timeStep;
             output->detectorInfo[i].timeScale[j].timeFinish = 
@@ -48,7 +49,7 @@ void InitOutput(InputInfo* input, OutputInfo* output)
             input->timeStart + (input->timeScaleSize - 1) * timeStep;
         output->detectorInfo[i].timeScale[input->timeScaleSize - 1].timeFinish = 
             input->timeFinish;
-		output->detectorInfo[i].targetRange = 0.0;
+		output->detectorInfo[i].targetWeight = 0.0;
     }
 }
 

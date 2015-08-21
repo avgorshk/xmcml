@@ -39,6 +39,7 @@ int ReadThreadsFromBackupFile(char* fileName, int* numThreadsPerProcess, int* nu
     SkipCurrentSection(file); //MCML_SECTION_DETECTOR_WEIGHTS
     SkipCurrentSection(file); //MCML_SECTION_DETECTOR_TRAJECTORIES
     SkipCurrentSection(file); //MCML_SECTION_DETECTOR_TIME_SCALE
+    SkipCurrentSection(file); //MCML_SECTION_DETECTOR_RANGES
 
     unsigned long long int reading_items;
     int section;
@@ -80,6 +81,7 @@ int ReadRandomGeneratorFromBackupFile(char* fileName, MCG59* randomGenerator)
     SkipCurrentSection(file); //MCML_SECTION_DETECTOR_WEIGHTS
     SkipCurrentSection(file); //MCML_SECTION_DETECTOR_TRAJECTORIES
     SkipCurrentSection(file); //MCML_SECTION_DETECTOR_TIME_SCALE
+    SkipCurrentSection(file); //MCML_SECTION_DETECTOR_RANGES
 
     unsigned long long int reading_items;
     int section;
@@ -280,7 +282,52 @@ int ReadSectionDetectorTimeScale(FILE* file, OutputInfo* output)
                 sizeof(double), 1, file);
             if (reading_items < 1)
                 return -1;
+
+            reading_items = fread(&(output->detectorInfo[i].timeScale[j].targetWeight),
+                sizeof(double), 1, file);
+            if (reading_items < 1)
+                return -1;
         }
+    }
+
+    return 0;
+}
+
+static int ReadSectionDetectorRanges(FILE* file, OutputInfo* output)
+{
+    unsigned long long int reading_items;
+    int section;
+    unsigned int section_length;
+    int numberOfDetectors;
+
+    reading_items = fread(&section, sizeof(int), 1, file);
+    if (reading_items < 1 || section != MCML_SECTION_DETECTOR_RANGES)
+        return -1;
+
+    reading_items = fread(&section_length, sizeof(unsigned int), 1, file);
+    if (reading_items < 1)
+        return -1;
+
+    reading_items = fread(&numberOfDetectors, sizeof(int), 1, file);
+    if (reading_items < 1 || numberOfDetectors != output->numberOfDetectors)
+        return -1;
+
+    for (int i = 0; i < numberOfDetectors; ++i)
+    {
+        double otherWeight = 0.0;
+        double targetWeight = 0.0;
+
+        reading_items = fread(&otherWeight, sizeof(double), 1, file);
+        if (reading_items < 1)
+            return -1;
+
+        reading_items = fread(&targetWeight, sizeof(double), 1, file);
+        if (reading_items < 1)
+            return -1;
+        
+        output->detectorInfo[i].targetWeight = targetWeight;
+        if (output->detectorInfo[i].weight - (targetWeight + otherWeight) > EPSILON)
+            return -1;
     }
 
     return 0;
@@ -307,6 +354,8 @@ int ReadOutputFormBackupFile(char* fileName, OutputInfo* output)
     if (ReadSectionDetectorTrajectories(file, output) != 0)
         return -1;
     if (ReadSectionDetectorTimeScale(file, output) != 0)
+        return -1;
+    if (ReadSectionDetectorRanges(file, output) != 0)
         return -1;
 
     fclose(file);

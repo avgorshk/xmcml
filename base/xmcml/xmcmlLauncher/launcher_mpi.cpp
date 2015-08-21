@@ -204,8 +204,9 @@ void ReceiveOutputFromAll(OutputInfo* output, int pid)
     uint64 numberOfPhotonsPerDetector = 0;
     uint64 numberOfPhotonsPerTime = 0;
     double weightPerTime = 0.0;
+    double targetWeightPerTime = 0.0;
 	double totalRangePerDetector = 0.0;
-	double targetRangePerDetector = 0.0;
+	double targetWeightPerDetector = 0.0;
 
     MPI_Op ullSumOp;
     MPI_Op_create((MPI_User_function*)mpi_sum, 1, &ullSumOp);
@@ -238,7 +239,7 @@ void ReceiveOutputFromAll(OutputInfo* output, int pid)
             MPI_UNSIGNED_LONG_LONG, ullSumOp, 0, MPI_COMM_WORLD);
         MPI_Reduce(&(output->detectorInfo[i].numberOfPhotons), &numberOfPhotonsPerDetector, 1,
             MPI_UNSIGNED_LONG_LONG, ullSumOp, 0, MPI_COMM_WORLD);
-		MPI_Reduce(&(output->detectorInfo[i].targetRange), &targetRangePerDetector, 1,
+		MPI_Reduce(&(output->detectorInfo[i].targetWeight), &targetWeightPerDetector, 1,
 			MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
         if (pid == 0)
@@ -247,7 +248,7 @@ void ReceiveOutputFromAll(OutputInfo* output, int pid)
 			output->detectorInfo[i].weight = weightInDetector;
             output->detectorInfo[i].trajectory = trajectory;
             output->detectorInfo[i].numberOfPhotons = numberOfPhotonsPerDetector;
-			output->detectorInfo[i].targetRange = targetRangePerDetector;
+			output->detectorInfo[i].targetWeight = targetWeightPerDetector;
         }
 
         for (int j = 0; j < output->detectorInfo[i].timeScaleSize; ++j)
@@ -256,17 +257,21 @@ void ReceiveOutputFromAll(OutputInfo* output, int pid)
             {
                 numberOfPhotonsPerTime = 0;
                 weightPerTime = 0.0;
+                targetWeightPerTime = 0.0;
             }
 
             MPI_Reduce(&(output->detectorInfo[i].timeScale[j].numberOfPhotons), 
                 &numberOfPhotonsPerTime, 1, MPI_UNSIGNED_LONG_LONG, ullSumOp, 0, MPI_COMM_WORLD);
             MPI_Reduce(&(output->detectorInfo[i].timeScale[j].weight), 
                 &weightPerTime, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+            MPI_Reduce(&(output->detectorInfo[i].timeScale[j].targetWeight),
+                &targetWeightPerTime, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
             if (pid == 0)
             {
                 output->detectorInfo[i].timeScale[j].numberOfPhotons = numberOfPhotonsPerTime;
                 output->detectorInfo[i].timeScale[j].weight = weightPerTime;
+                output->detectorInfo[i].timeScale[j].targetWeight = targetWeightPerTime;
             }
         }
     }
@@ -327,7 +332,7 @@ void DoBackup(InputInfo* input, OutputInfo* output, MCG59* randomGenerator, int 
         for (int i = 0; i < output->numberOfDetectors; ++i)
         {
 			output->detectorInfo[i].weight = 0;
-			output->detectorInfo[i].targetRange = 0;
+			output->detectorInfo[i].targetWeight = 0;
             output->detectorInfo[i].numberOfPhotons = 0;
             memset(output->detectorInfo[i].trajectory, 0, 
                 output->detectorInfo[i].trajectorySize * sizeof(uint64));
@@ -335,6 +340,7 @@ void DoBackup(InputInfo* input, OutputInfo* output, MCG59* randomGenerator, int 
             {
                 output->detectorInfo[i].timeScale[j].numberOfPhotons = 0;
                 output->detectorInfo[i].timeScale[j].weight = 0.0;
+                output->detectorInfo[i].timeScale[j].targetWeight = 0.0;
             }
         }
     }

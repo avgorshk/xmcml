@@ -13,6 +13,7 @@ typedef struct __TimeInfo
     double timeFinish;
     uint64 numberOfPhotons;
     double weight;
+    double targetWeight;
 } TimeInfo;
 
 typedef struct __CubeDetector
@@ -37,7 +38,7 @@ typedef struct __DetectorInfo
     int trajectorySize;
     TimeInfo* timeScale;
     int timeScaleSize;
-	double targetRange;
+	double targetWeight;
 	double weight;
 } DetectorInfo;
 

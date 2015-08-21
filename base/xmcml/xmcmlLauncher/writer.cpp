@@ -283,7 +283,7 @@ static int WriteSectionDetectorTimeScale(FILE* file, DetectorInfo* detectorInfo,
     for (int i = 0; i < numberOfDetectors; ++i)
     {
         section_lenght += sizeof(int) + 
-            detectorInfo[i].timeScaleSize * (3 * sizeof(double) + sizeof(uint64));
+            detectorInfo[i].timeScaleSize * (4 * sizeof(double) + sizeof(uint64));
     }
     
     written_items = fwrite(&section_lenght, sizeof(unsigned int), 1, file);
@@ -318,6 +318,11 @@ static int WriteSectionDetectorTimeScale(FILE* file, DetectorInfo* detectorInfo,
                 return -1;
 
             written_items = fwrite(&(detectorInfo[i].timeScale[j].weight), 
+                sizeof(double), 1, file);
+            if (written_items < 1)
+                return -1;
+
+            written_items = fwrite(&(detectorInfo[i].timeScale[j].targetWeight),
                 sizeof(double), 1, file);
             if (written_items < 1)
                 return -1;
@@ -384,13 +389,13 @@ static int WriteSectionDetectorRanges(FILE* file, DetectorInfo* detectorInfo, in
 
 	for (int i = 0; i < numberOfDetectors; ++i)
 	{
-		double otherRange = detectorInfo[i].weight - detectorInfo[i].targetRange;
-		double targetRange = detectorInfo[i].targetRange;
-			written_items = fwrite(&(otherRange), sizeof(double), 1, file);
+		double otherWeight = detectorInfo[i].weight - detectorInfo[i].targetWeight;
+		double targetWeight = detectorInfo[i].targetWeight;
+			written_items = fwrite(&(otherWeight), sizeof(double), 1, file);
 		if (written_items < 1)
 			return -1;
 
-		written_items = fwrite(&(targetRange), sizeof(double), 1, file);
+		written_items = fwrite(&(targetWeight), sizeof(double), 1, file);
 		if (written_items < 1)
 			return -1;
 	}
@@ -475,6 +480,8 @@ bool WriteBackupToFile(InputInfo* input, OutputInfo* output, MCG59* randomGenera
     if (WriteSectionDetectorTrajectories(file, output->detectorInfo, output->numberOfDetectors) != 0)
         return false;
     if (WriteSectionDetectorTimeScale(file, output->detectorInfo, output->numberOfDetectors) != 0)
+        return false;
+    if (WriteSectionDetectorRanges(file, output->detectorInfo, output->numberOfDetectors) != 0)
         return false;
     if (WriteSectionRandomGenerator(file, randomGenerator, numThreadsPerProcess, numProcesses) != 0)
         return false;

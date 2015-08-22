@@ -808,6 +808,12 @@ void UpdateDetectorTimeScale(OutputInfo* output, PhotonState* photon, int detect
     }
     if (photon->time >= timeScale[timeScaleSize - 1].timeStart)
     {
+        double totalRange = photon->targetRange + photon->otherRange;
+        double targetWeight = photon->targetRange * (photon->weight / totalRange);
+
+        #pragma omp atomic
+        timeScale[timeScaleSize - 1].targetWeight += targetWeight;
+
         #pragma omp atomic
         ++(timeScale[timeScaleSize - 1].numberOfPhotons);
 

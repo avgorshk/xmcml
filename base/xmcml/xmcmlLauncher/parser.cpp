@@ -326,6 +326,7 @@ bool ParseInputFile(char* fileName, InputInfo* input)
 					{
 						cubeDetector.filterLayers[j] = true;
 					}
+                    cubeDetector.targetAngle = 90.0;
                     TiXmlElement* detectorChild = detectorsChild->FirstChildElement();
                     for (detectorChild; detectorChild; detectorChild = detectorChild->NextSiblingElement())
                     {
@@ -391,6 +392,10 @@ bool ParseInputFile(char* fileName, InputInfo* input)
 								}
 							}
 						}
+                        else if (strcmp(detectorChild->Value(), "TargetAngle") == 0)
+                        {
+                            cubeDetector.targetAngle = atof(detectorChild->GetText());
+                        }
                     }
 					CubeDetectorsMap.insert(std::pair<int, CubeDetector>(numberOfFilterLayers, cubeDetector));
                 }
@@ -420,6 +425,7 @@ bool ParseInputFile(char* fileName, InputInfo* input)
 						ringDetector.filterLayers[j] = true;
 					}
 					int numberOfFilterLayers = MAX_LAYERS;
+                    ringDetector.targetAngle = 90.0;
                     TiXmlElement* detectorChild = detectorsChild->FirstChildElement();
                     for (detectorChild; detectorChild; detectorChild = detectorChild->NextSiblingElement())
                     {
@@ -474,6 +480,10 @@ bool ParseInputFile(char* fileName, InputInfo* input)
 								}
 							}
 						}
+                        else if (strcmp(detectorChild->Value(), "TargetAngle") == 0)
+                        {
+                            ringDetector.targetAngle = atof(detectorChild->GetText());
+                        }
                     }
 					RingDetectorsMap.insert(std::pair<int, RingDetector>(numberOfFilterLayers, ringDetector));
                 }

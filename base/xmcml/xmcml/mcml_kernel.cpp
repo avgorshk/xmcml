@@ -677,18 +677,32 @@ int GetDetectorId(PhotonState* photon, InputInfo* input)
             (photon->position.y < (input->cubeDetector[i].center.y + halfLength.y)) &&
             (photon->position.z >= (input->cubeDetector[i].center.z - halfLength.z)) &&
             (photon->position.z < (input->cubeDetector[i].center.z + halfLength.z));
-		bool isPhotonVisitedTargetLayer = false;
-		for(int j = 0; j < MAX_LAYERS; ++j)
-		{
-			if((photon->visitedLayers[j])&&(input->cubeDetector[i].filterLayers[j]))
-			{
-				isPhotonVisitedTargetLayer = true;
-				break;
-			}
-		}
-        if (isPhotonInDetector && isPhotonVisitedTargetLayer)
-        {  
-            return i;
+        
+        if (isPhotonInDetector)
+        {
+            bool isPhotonVisitedTargetLayer = false;
+            for (int j = 0; j < MAX_LAYERS; ++j)
+            {
+                if ((photon->visitedLayers[j]) && (input->cubeDetector[i].filterLayers[j]))
+                {
+                    isPhotonVisitedTargetLayer = true;
+                    break;
+                }
+            }
+
+            if (isPhotonVisitedTargetLayer)
+            {
+                double directionVectorLenght =
+                    photon->direction.x * photon->direction.x +
+                    photon->direction.y * photon->direction.y +
+                    photon->direction.z * photon->direction.z;
+                double angleCos = (-photon->direction.z) / directionVectorLenght;
+
+                if (angleCos > cos(input->ringDetector[i].targetAngle * PI / 180.0))
+                {
+                    return i;
+                }
+            }
         }
     }
 
@@ -700,18 +714,32 @@ int GetDetectorId(PhotonState* photon, InputInfo* input)
 			(photon->position.y - input->ringDetector[i].center.y)));
 		bool isPhotonInDetector = ((distance >= input->ringDetector[i].smallRadius) && 
 			(distance < input->ringDetector[i].bigRadius));
-		bool isPhotonVisitedTargetLayer = false;
-		for(int j = 0; j < MAX_LAYERS; ++j)
-			{
-				if((photon->visitedLayers[j])&&(input->ringDetector[i].filterLayers[j]))
-				{
-					isPhotonVisitedTargetLayer = true;
-					break;
-				}
-			}
-		if (isPhotonInDetector && isPhotonVisitedTargetLayer)
+		
+        if (isPhotonInDetector)
         {
-            return input->numberOfCubeDetectors + i;
+            bool isPhotonVisitedTargetLayer = false;
+            for (int j = 0; j < MAX_LAYERS; ++j)
+            {
+                if ((photon->visitedLayers[j]) && (input->ringDetector[i].filterLayers[j]))
+                {
+                    isPhotonVisitedTargetLayer = true;
+                    break;
+                }
+            }
+
+            if (isPhotonVisitedTargetLayer)
+            {
+                double directionVectorLenght =
+                    photon->direction.x * photon->direction.x +
+                    photon->direction.y * photon->direction.y +
+                    photon->direction.z * photon->direction.z;
+                double angleCos = (-photon->direction.z) / directionVectorLenght;
+
+                if (angleCos > cos(input->ringDetector[i].targetAngle * PI / 180.0))
+                {
+                    return input->numberOfCubeDetectors + i;
+                }
+            }
         }
 	}
 

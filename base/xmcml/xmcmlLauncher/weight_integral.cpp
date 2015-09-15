@@ -1,6 +1,7 @@
 #include "weight_integral.h"
 
 #include <stdio.h>
+#include <math.h>
 #include <omp.h>
 
 #include "sections.h"
@@ -201,14 +202,14 @@ bool ParseWeightIntegralFile(InputInfo* input, CmdArguments* args)
         return false;
 
     readingItems = fread(&(input->numberOfWeightTables), sizeof(int), 1, file);
-    if (readingItems < 1 || input->numberOfWeightTables != numberOfDifferentAnisotropies)
+    if (readingItems < 1 || input->numberOfWeightTables < numberOfDifferentAnisotropies)
         return false;
 
     input->weightTable = new WeightIntegralTable[input->numberOfWeightTables];
     for (int i = 0; i < input->numberOfWeightTables; ++i)
     {
         readingItems = fread(&(input->weightTable[i].anisotropy), sizeof(double), 1, file);
-        if (readingItems < 1 || input->weightTable[i].anisotropy != anisotropies[i])
+        if (readingItems < 1)
             return false;
 
         readingItems = fread(&(input->weightTable[i].numberOfElements), sizeof(int), 1, file);
@@ -220,6 +221,24 @@ bool ParseWeightIntegralFile(InputInfo* input, CmdArguments* args)
             input->weightTable[i].numberOfElements, file);
         if (readingItems < input->weightTable[i].numberOfElements)
             return false;
+    }
+
+    for (int i = 0; i < numberOfDifferentAnisotropies; ++i)
+    {
+        bool isFound = false;
+        for (int j = 0; j < input->numberOfWeightTables; ++j)
+        {
+            if (fabs(input->weightTable[j].anisotropy - anisotropies[i]) < EPSILON)
+            {
+                isFound = true;
+                break;
+            }
+        }
+
+        if (!isFound)
+        {
+            return false;
+        }
     }
 
     fclose(file);

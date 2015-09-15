@@ -21,6 +21,7 @@ typedef struct __CubeDetector
     double3 center;
     double3 length;
 	bool filterLayers[MAX_LAYERS];
+    double targetAngle;
 } CubeDetector;
 
 typedef struct __RingDetector
@@ -29,6 +30,7 @@ typedef struct __RingDetector
 	double smallRadius;
 	double bigRadius;
 	bool filterLayers[MAX_LAYERS];
+    double targetAngle;
 } RingDetector;
 
 typedef struct __DetectorInfo 

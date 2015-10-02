@@ -34,6 +34,7 @@
                 <MenuItem Header="Absorption map" Click="MenuItem_AbsorptionClick" />
                 <MenuItem Header="Scattering map" Click="MenuItem_ScatteringClick" />
                 <MenuItem Header="Detectors" />
+                <MenuItem Header="Grid detectors" Click="MenuItem_GridDetectorsClick" />
             </MenuItem>
             <MenuItem Header="Save trajectory maps">
                 <MenuItem Header="XY" Click="MenuItem_XY_Click" />

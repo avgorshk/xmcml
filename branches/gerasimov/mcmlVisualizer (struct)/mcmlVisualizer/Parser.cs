@@ -16,10 +16,11 @@ namespace mcmlVisualizer
         private const uint MCML_SECTION_COMMON_TRAJECTORIES = 5;
         private const uint MCML_SECTION_SCATTERING_MAP = 6;
         private const uint MCML_SECTION_DETECTOR_WEIGHTS = 7;
-        private const uint MCML_SECTION_DETECTOR_TRAJECTORIES = 8;
-        private const uint MCML_SECTION_DETECTOR_TIME_SCALE = 9;
-        private const uint MCML_SECTION_RING_DETECTORS = 11;
-        private const uint MCML_SECTION_DETECTOR_RANGES = 12;
+        private const uint MCML_SECTION_GRID_DETECTOR = 8;
+        private const uint MCML_SECTION_DETECTOR_TRAJECTORIES = 9;
+        private const uint MCML_SECTION_DETECTOR_TIME_SCALE = 10;
+        private const uint MCML_SECTION_RING_DETECTORS = 12;
+        private const uint MCML_SECTION_DETECTOR_RANGES = 13;
 
         private FileStream file;
         private Hashtable sections;
@@ -29,6 +30,7 @@ namespace mcmlVisualizer
         private double specularReflecrance;
 
         private double[] detectorWeights = new double[0];
+        private double[] gridDetectorWeights = new double[0];
         private double[] detectorTargetRanges = new double[0];
         private UInt64[] numPhotonsInDetector = new UInt64[0];
 
@@ -168,6 +170,19 @@ namespace mcmlVisualizer
                 }
             }
 
+            // MCML_SECTION_GRID_DETECTOR
+            if (sections.ContainsKey(MCML_SECTION_GRID_DETECTOR))
+            {
+                offset = (uint)this.sections[MCML_SECTION_GRID_DETECTOR];
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                int gridDetectorSize = reader.ReadInt32();
+                gridDetectorWeights = new double[gridDetectorSize];
+                for (int i = 0; i < gridDetectorSize; ++i)
+                {
+                    gridDetectorWeights[i] = reader.ReadDouble();
+                }
+            }
+
             // MCML_SECTION_DETECTOR_TRAJECTORIES
             if (sections.ContainsKey(MCML_SECTION_DETECTOR_TRAJECTORIES))
             {
@@ -222,6 +237,11 @@ namespace mcmlVisualizer
         public double[] GetDetectorWeights()
         {
             return detectorWeights;
+        }
+
+        public double[] GetGridDetectorWeights()
+        {
+            return gridDetectorWeights;
         }
 
         public double[] GetDetectorTargetRanges()
@@ -338,6 +358,13 @@ namespace mcmlVisualizer
             for (int i = 0; i < detectorWeights.Length; ++i)
             {
                 text.AppendFormat("{0} ", detectorWeights[i]);
+            }
+            text.AppendFormat("\n");
+
+            text.AppendFormat("Weights in grid detectors ({0}):\n", gridDetectorWeights.Length);
+            for (int i = 0; i < gridDetectorWeights.Length; ++i)
+            {
+                text.AppendFormat("{0} ", gridDetectorWeights[i]);
             }
             text.AppendFormat("\n");
 

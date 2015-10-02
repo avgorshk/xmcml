@@ -21,14 +21,25 @@ namespace mcmlVisualizer
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string[] modeNameString={"Absorption map","Scattering map","Detectors"};
+        struct gridDetectorsData
+        {
+            public double[] data;
+            public Int3 partitionNumber;
+        };
+
+        bool detectorsNormColor = false;
         private Parser parser = null;
         private TrajectoryBox trajectoryBox = null;
-        private double scaledCoefficient = 0.0;
+        private gridDetectorsData gridDetectors;
+
+        private string[] modeNameString
+            = {"Absorption map","Scattering map","Detectors","Grid detectors"};
 
         private double[] sectionXY = null;
         private double[] sectionXZ = null;
         private double[] sectionYZ = null;
+
+        private double scaledCoefficient = 0.0;
 
         public MainWindow()
         {
@@ -78,6 +89,9 @@ namespace mcmlVisualizer
                 labelModeName.Content = modeNameString[0];
                 trajectoryBox = new TrajectoryBox(parser.GetArea(), parser.GetTrajectoriesApsorption());
                 
+                gridDetectors.data = parser.GetGridDetectorWeights();
+                gridDetectors.partitionNumber = (parser.GetArea()).partitionNumber;
+
                 scaledCoefficient = ComputeScaledCoefficient();
 
                 double stepSizeX = trajectoryBox.area.length.x / trajectoryBox.area.partitionNumber.x;
@@ -292,6 +306,50 @@ namespace mcmlVisualizer
             }
         }
 
+        void PaintGridDetectors()
+        {
+            Int3 partitionNumber = gridDetectors.partitionNumber;
+            double height = gridYZ.ActualHeight;
+            double width = gridYZ.ActualWidth;
+            double stepX = width / partitionNumber.x;
+            double stepY = height / partitionNumber.y;
+
+            gridXY.Children.Clear();
+            gridXZ.Children.Clear();
+            gridYZ.Children.Clear();
+
+            for (int ix = 0; ix < partitionNumber.x; ++ix)
+            {
+                for (int iy = 0; iy < partitionNumber.y; ++iy)
+                {
+                    int index = ix * partitionNumber.x + iy;
+                    double weight = gridDetectors.data[index];
+                    if (weight < 1.0)
+                        weight = 1.0;
+
+                    double color = 0.0;
+
+                    
+                    //if (detectorsNormColor)
+                        color = Math.Log10(weight) / Math.Log10(scaledCoefficient);
+                    //else
+                      //  color = weight / scaledCoefficient;
+
+                    SolidColorBrush brush = new SolidColorBrush(
+                        GetColor(color));
+                    
+                    Rectangle rectangle = new Rectangle();
+                    rectangle.Height = stepY;
+                    rectangle.Width = stepX;
+                    rectangle.Margin = new Thickness(stepX * ix, stepY * iy, 0, 0);
+                    rectangle.Fill = brush;
+                    rectangle.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                    rectangle.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+                    gridXY.Children.Add(rectangle);
+                }
+            }
+        }
+
         Color GetColor(double weight)
         {
             if (weight < 0) weight = 0;
@@ -343,6 +401,9 @@ namespace mcmlVisualizer
 
         private void MenuItem_XY_Click(object sender, RoutedEventArgs e)
         {
+            if(parser == null)
+                return;
+
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
             sfd.Filter = "Text file|*.txt";
@@ -350,23 +411,44 @@ namespace mcmlVisualizer
             if (sfd.ShowDialog() == true)
             {
                 StreamWriter stream = new StreamWriter(sfd.FileName);
-                for (int ix = 0; ix < trajectoryBox.area.partitionNumber.x; ++ix)
+                if (trajectoryBox != null)
                 {
-                    for (int iy = 0; iy < trajectoryBox.area.partitionNumber.y; ++iy)
+                    for (int ix = 0; ix < trajectoryBox.area.partitionNumber.x; ++ix)
                     {
-                        int index = ix * trajectoryBox.area.partitionNumber.y + iy;
-                        stream.Write(sectionXY[index]);
-                        stream.Write('\t');
+                        for (int iy = 0; iy < trajectoryBox.area.partitionNumber.y; ++iy)
+                        {
+                            int index = ix * trajectoryBox.area.partitionNumber.y + iy;
+                            stream.Write(sectionXY[index]);
+                            stream.Write('\t');
+                        }
+                        stream.WriteLine();
                     }
-                    stream.WriteLine();
                 }
+                else
+                {
+                    for (int ix = 0; ix < gridDetectors.partitionNumber.x; ++ix)
+                    {
+                        for (int iy = 0; iy < gridDetectors.partitionNumber.y; ++iy)
+                        {
+                            int index = ix * gridDetectors.partitionNumber.y + iy;
+                            stream.Write(gridDetectors.data[index]);
+                            stream.Write('\t');
+                        }
+                        stream.WriteLine();
+                    }
+                }
+
                 stream.Flush();
                 stream.Close();
             }
         }
-
         private void MenuItem_XZ_Click(object sender, RoutedEventArgs e)
         {
+            if (parser == null)
+                return;
+            if (trajectoryBox == null)
+                return;
+
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
             sfd.Filter = "Text file|*.txt";
@@ -391,6 +473,11 @@ namespace mcmlVisualizer
 
         private void MenuItem_YZ_Click(object sender, RoutedEventArgs e)
         {
+            if (parser == null)
+                return;
+            if (trajectoryBox == null)
+                return;
+
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
             sfd.Filter = "Text file|*.txt";
@@ -609,8 +696,8 @@ namespace mcmlVisualizer
             {
                 labelModeName.Content = modeNameString[0];
                 trajectoryBox = new TrajectoryBox(parser.GetArea(), parser.GetTrajectoriesApsorption());
-
                 scaledCoefficient = ComputeScaledCoefficient();
+
                 PaintXY(sliderZ.Value);
                 PaintXZ(sliderY.Value);
                 PaintYZ(sliderX.Value);
@@ -623,11 +710,63 @@ namespace mcmlVisualizer
             {
                 labelModeName.Content = modeNameString[1];
                 trajectoryBox = new TrajectoryBox(parser.GetArea(), parser.GetTrajectoriesScattering());
-
                 scaledCoefficient = ComputeScaledCoefficient();
+
                 PaintXY(sliderZ.Value);
                 PaintXZ(sliderY.Value);
                 PaintYZ(sliderX.Value);
+            }
+        }
+
+        bool testOkScaled()
+        {
+            double max = gridDetectors.data[0];
+
+            for (int i = 1; i < gridDetectors.data.Length; ++i)
+                if (gridDetectors.data[i] > max)
+                    max = gridDetectors.data[i];
+
+            double min = max;
+
+            for (int i = 0; i < gridDetectors.data.Length; ++i)
+                if ((gridDetectors.data[i] > 0.0) && (gridDetectors.data[i] < min))
+                    min = gridDetectors.data[i];
+
+            if (Math.Log10(min) / Math.Log10(max) < 0.0)
+                return true;
+            else
+                return false;
+        }
+
+         double MaxScaledCoefficient()
+         {
+            double max = gridDetectors.data[0];
+
+            for (int i = 1; i < gridDetectors.data.Length; ++i)
+                if (gridDetectors.data[i] > max)
+                    max = gridDetectors.data[i];
+
+            return max;
+         }
+
+        private void MenuItem_GridDetectorsClick(object sender, RoutedEventArgs e)
+        {
+            if ((parser != null) && (trajectoryBox != null))
+            {
+                labelModeName.Content = modeNameString[3];
+
+                if (!testOkScaled())
+                {
+                    scaledCoefficient = MaxScaledCoefficient();
+                    detectorsNormColor = false;
+                }
+                else
+                {
+                    scaledCoefficient = ComputeScaledCoefficient();
+                    detectorsNormColor = true;
+                }
+                PaintGridDetectors();
+                trajectoryBox = null;
             }
         }
     }

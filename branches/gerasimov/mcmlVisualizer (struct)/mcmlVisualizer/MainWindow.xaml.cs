@@ -33,7 +33,7 @@ namespace mcmlVisualizer
         private gridDetectorsData gridDetectors;
 
         private string[] modeNameString
-            = {"Absorption map","Scattering map","Detectors","Grid detectors"};
+            = {"Absorption map","Scattering map","Depth map","Detectors","Grid detectors"};
 
         private double[] sectionXY = null;
         private double[] sectionXZ = null;
@@ -60,7 +60,7 @@ namespace mcmlVisualizer
             openFileDialog.ShowDialog();
         }
 
-        void openFileDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        private void openFileDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
             try
             {
@@ -124,9 +124,9 @@ namespace mcmlVisualizer
             }
         }
 
-        void item_Click(object sender, RoutedEventArgs e)
+        private void item_Click(object sender, RoutedEventArgs e)
         {
-            labelModeName.Content = modeNameString[2];
+            labelModeName.Content = modeNameString[3];
 
             int detectorId = int.Parse(((MenuItem)sender).Header.ToString());
             trajectoryBox = new TrajectoryBox(parser.GetArea(), parser.GetDetectorTrajectories(detectorId));
@@ -158,7 +158,7 @@ namespace mcmlVisualizer
             PaintXY(sliderZ.Value);
         }
 
-        void SetInformation(Parser parser)
+        private void SetInformation(Parser parser)
         {
             textBoxInformation.Text = "";
 
@@ -188,7 +188,7 @@ namespace mcmlVisualizer
             }
         }
 
-        double ComputeScaledCoefficient()
+        private double ComputeScaledCoefficient()
         {
             double max = trajectoryBox.trajectories[0];
             for (int i = 1; i < trajectoryBox.trajectories.Length; ++i)
@@ -201,7 +201,7 @@ namespace mcmlVisualizer
             return max;
         }
 
-        void PaintXY(double z)
+        private void PaintXY(double z)
         {
             gridXY.Children.Clear();
 
@@ -236,7 +236,7 @@ namespace mcmlVisualizer
             }
         }
 
-        void PaintXZ(double y)
+        private void PaintXZ(double y)
         {
             gridXZ.Children.Clear();
 
@@ -271,7 +271,7 @@ namespace mcmlVisualizer
             }
         }
 
-        void PaintYZ(double x)
+        private void PaintYZ(double x)
         {
             gridYZ.Children.Clear();
 
@@ -306,7 +306,7 @@ namespace mcmlVisualizer
             }
         }
 
-        void PaintGridDetectors()
+        private void PaintGridDetectors()
         {
             Int3 partitionNumber = gridDetectors.partitionNumber;
             double height = gridYZ.ActualHeight;
@@ -322,14 +322,13 @@ namespace mcmlVisualizer
             {
                 for (int iy = 0; iy < partitionNumber.y; ++iy)
                 {
-                    int index = ix * partitionNumber.x + iy;
+                    int index = ix * partitionNumber.y + iy;
                     double weight = gridDetectors.data[index];
                     if (weight < 1.0)
                         weight = 1.0;
 
                     double color = 0.0;
 
-                    
                     //if (detectorsNormColor)
                         color = Math.Log10(weight) / Math.Log10(scaledCoefficient);
                     //else
@@ -350,7 +349,7 @@ namespace mcmlVisualizer
             }
         }
 
-        Color GetColor(double weight)
+        private Color GetColor(double weight)
         {
             if (weight < 0) weight = 0;
             if (weight > 1) weight = 1;
@@ -718,7 +717,21 @@ namespace mcmlVisualizer
             }
         }
 
-        bool testOkScaled()
+        private void MenuItem_DepthClick(object sender, RoutedEventArgs e)
+        {
+            if (parser != null)
+            {
+                labelModeName.Content = modeNameString[2];
+                trajectoryBox = new TrajectoryBox(parser.GetArea(), parser.GetTrajectoriesDepth());
+                scaledCoefficient = ComputeScaledCoefficient();
+
+                PaintXY(sliderZ.Value);
+                PaintXZ(sliderY.Value);
+                PaintYZ(sliderX.Value);
+            }
+        }
+
+        private bool testOkScaled()
         {
             double max = gridDetectors.data[0];
 
@@ -738,7 +751,7 @@ namespace mcmlVisualizer
                 return false;
         }
 
-         double MaxScaledCoefficient()
+         private double MaxScaledCoefficient()
          {
             double max = gridDetectors.data[0];
 
@@ -753,7 +766,7 @@ namespace mcmlVisualizer
         {
             if ((parser != null) && (trajectoryBox != null))
             {
-                labelModeName.Content = modeNameString[3];
+                labelModeName.Content = modeNameString[4];
 
                 if (!testOkScaled())
                 {

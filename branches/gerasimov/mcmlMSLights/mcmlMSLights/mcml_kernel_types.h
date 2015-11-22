@@ -89,10 +89,11 @@ typedef struct __OutputInfo
 {
     uint64 numberOfPhotons;
 	double specularReflectance;
+	int gridSize;
 	double* absorption;
 	double* scatteringMap;
-    int gridSize;
-	int gridDetectorSize;
+	double* depthMap;
+    int gridDetectorSize;
     double* weightInDetector;
 	double* weightInGridDetector;
     DetectorTrajectory* detectorTrajectory;
@@ -104,6 +105,7 @@ typedef struct __PhotonState
 	double3 position;
 	double3 direction;
 	double step;
+	double maxDepth;
     int layerId;
 	bool visitedLayers[MAX_LAYERS];
 	double weight;

@@ -201,6 +201,32 @@ static int WriteSectionScatteringMap(FILE* file, double* scatteringMap, int grid
 
 	return 0;
 }
+
+static int WriteSectionDepthMap(FILE* file, double* depthMap, int gridSize)
+{
+	unsigned long long int written_items;
+
+    unsigned int section_id = MCML_SECTION_DEPTH_MAP;
+    written_items = fwrite(&section_id, sizeof(unsigned int), 1, file);
+    if (written_items < 1)
+        return -1;
+
+	unsigned int section_lenght = sizeof(int) + gridSize * sizeof(double);
+    written_items = fwrite(&section_lenght, sizeof(unsigned int), 1, file);
+    if (written_items < 1)
+        return -1;
+
+	written_items = fwrite(&gridSize, sizeof(int), 1, file);
+    if (written_items < 1)
+        return -1;
+
+	written_items = fwrite(depthMap, sizeof(double), gridSize, file);
+    if (written_items < gridSize)
+        return -1;
+
+	return 0;
+}
+
 static int WriteSectionDetectorWeights(FILE* file, double* detectorWeights, int numberOfDetectors)
 {
     unsigned long long int written_items;
@@ -403,6 +429,8 @@ bool WriteOutputToFile(InputInfo* input, OutputInfo* output, char* fileName)
     if (WriteSectionCommonTrajectories(file, output->absorption, output->gridSize) != 0)
         return false;
 	if (WriteSectionScatteringMap(file, output->scatteringMap, output->gridSize) != 0)
+        return false;
+	if (WriteSectionDepthMap(file, output->depthMap, output->gridSize) != 0)
         return false;
     if (WriteSectionDetectorWeights(file, output->weightInDetector, output->numberOfDetectors) != 0)
         return false;

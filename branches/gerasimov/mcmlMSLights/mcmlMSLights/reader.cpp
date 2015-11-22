@@ -240,6 +240,38 @@ static int ReadSectionScatteringMap(FILE* file, OutputInfo* output)
     return 0;
 }
 
+static int ReadSectionDepthMap(FILE* file, OutputInfo* output)
+{
+    unsigned long long int reading_items;
+
+    unsigned int section_id;
+    reading_items = fread(&section_id, sizeof(unsigned int), 1, file);
+    if (reading_items < 1)
+        return -1;
+
+	if(section_id != MCML_SECTION_DEPTH_MAP)
+		return -1;
+
+    fseek(file, sizeof(unsigned int), SEEK_CUR);
+
+	int gridSize;
+
+    reading_items = fread(&gridSize, sizeof(int), 1, file);
+    if (reading_items < 1)
+        return -1;
+
+	double* depthMap = new double[gridSize];
+
+    reading_items = fread(depthMap, sizeof(double), gridSize, file);
+    if (reading_items < gridSize)
+        return -1;
+
+	output->gridSize = gridSize;
+	output->depthMap = depthMap;
+
+    return 0;
+}
+
 static int ReadSectionDetectorWeights(FILE* file, OutputInfo* output)
 {
     unsigned long long int reading_items;
@@ -480,6 +512,8 @@ bool ReadOutputToFile(InputInfo* input, OutputInfo* output, char* fileName)
     if (ReadSectionCommonTrajectories(file, output) != 0)
         return false;
 	if (ReadSectionScatteringMap(file, output) != 0)
+        return false;
+	if (ReadSectionDepthMap(file, output) != 0)
         return false;
     if (ReadSectionDetectorWeights(file, output) != 0)
         return false;

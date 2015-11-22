@@ -33,6 +33,7 @@
             <MenuItem Name="Mode" Header="Mode" IsEnabled="True">
                 <MenuItem Header="Absorption map" Click="MenuItem_AbsorptionClick" />
                 <MenuItem Header="Scattering map" Click="MenuItem_ScatteringClick" />
+                <MenuItem Header="Depth map" Click="MenuItem_DepthClick"/>
                 <MenuItem Header="Detectors" />
                 <MenuItem Header="Grid detectors" Click="MenuItem_GridDetectorsClick" />
             </MenuItem>

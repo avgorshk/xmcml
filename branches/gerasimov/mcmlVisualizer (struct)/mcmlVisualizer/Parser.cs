@@ -15,12 +15,13 @@ namespace mcmlVisualizer
         private const uint MCML_SECTION_SPECULAR_REFLECTANCE = 4;
         private const uint MCML_SECTION_COMMON_TRAJECTORIES = 5;
         private const uint MCML_SECTION_SCATTERING_MAP = 6;
-        private const uint MCML_SECTION_DETECTOR_WEIGHTS = 7;
-        private const uint MCML_SECTION_GRID_DETECTOR = 8;
-        private const uint MCML_SECTION_DETECTOR_TRAJECTORIES = 9;
-        private const uint MCML_SECTION_DETECTOR_TIME_SCALE = 10;
-        private const uint MCML_SECTION_RING_DETECTORS = 12;
-        private const uint MCML_SECTION_DETECTOR_RANGES = 13;
+        private const uint MCML_SECTION_DEPTH_MAP = 7;
+        private const uint MCML_SECTION_DETECTOR_WEIGHTS = 8;
+        private const uint MCML_SECTION_GRID_DETECTOR = 9;
+        private const uint MCML_SECTION_DETECTOR_TRAJECTORIES = 10;
+        private const uint MCML_SECTION_DETECTOR_TIME_SCALE = 11;
+        private const uint MCML_SECTION_RING_DETECTORS = 13;
+        private const uint MCML_SECTION_DETECTOR_RANGES = 14;
 
         private FileStream file;
         private Hashtable sections;
@@ -36,6 +37,7 @@ namespace mcmlVisualizer
 
         private double[] absorptionMap = new double[0];
         private double[] scatteringMap = new double[0];
+        private double[] depthMap = new double[0];
 
         static public Parser getInstance(string fileName)
         {
@@ -157,6 +159,19 @@ namespace mcmlVisualizer
                 }
             }
 
+            // MCML_SECTION_DEPTH_MAP
+            if (sections.ContainsKey(MCML_SECTION_DEPTH_MAP))
+            {
+                offset = (uint)this.sections[MCML_SECTION_DEPTH_MAP];
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                int size = reader.ReadInt32();
+                depthMap = new double[size];
+                for (int i = 0; i < size; ++i)
+                {
+                    depthMap[i] = reader.ReadDouble();
+                }
+            }
+
             // MCML_SECTION_DETECTOR_WEIGHTS
             if (sections.ContainsKey(MCML_SECTION_DETECTOR_WEIGHTS))
             {
@@ -259,6 +274,11 @@ namespace mcmlVisualizer
             return scatteringMap;
         }
 
+        public double[] GetTrajectoriesDepth()
+        {
+            return depthMap;
+        }
+
         public UInt64[] GetDetectorTrajectories(int detectorId)
         {
             BinaryReader reader = new BinaryReader(this.file);
@@ -286,7 +306,7 @@ namespace mcmlVisualizer
                 }
             }
 
-            return null;
+            return new UInt64[0];
         }
 
         public TimeInfo[] GetDetectorTimeScale(int detectorId)
@@ -389,8 +409,15 @@ namespace mcmlVisualizer
             }
             text.AppendFormat("\n");
 
-            text.AppendFormat("Detector trajectories ({0})\n", detectorWeights.Length);
+            text.AppendFormat("Depth Map ({0}):\n", depthMap.Length);
+            for (int i = 0; i < depthMap.Length; ++i)
+            {
+                text.AppendFormat("{0} ", depthMap[i]);
+            }
+            text.AppendFormat("\n");
+
             ulong[] commonTrajectory = GetDetectorTrajectories(0);
+            text.AppendFormat("Detector trajectories ({0})\n", detectorWeights.Length);
             for (int i = 1; i < detectorWeights.Length; ++i)
             {
                 ulong[] trajectory = GetDetectorTrajectories(i);

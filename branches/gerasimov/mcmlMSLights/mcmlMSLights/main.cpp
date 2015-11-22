@@ -2,9 +2,7 @@
 #include "reader.h"
 #include "writer.h"
 #include <stdio.h>
-
-#define FILE_INPUT "result920.mcml.out"
-#define FILE_OUTPUT "MSLresult920_16poly.mcml.out"
+#include <string>
 
 InputInfo* InitializeInput()
 {
@@ -35,6 +33,7 @@ void FreeOutput(OutputInfo* output)
 	{
 		delete[] output->absorption;
 		delete[] output->scatteringMap;
+		delete[] output->depthMap;
 		delete[] output->weightInDetector;
 		delete[] output->weightInGridDetector;
 	
@@ -49,49 +48,89 @@ void FreeOutput(OutputInfo* output)
 	}
 }
 
-void initializeFuncPar(InputFuncPar* funcPar)
+void ParseCommandArgs(int argc, char* argv[], char* fileIO[], InputFuncPar* funcPar)
 {
-	funcPar->A = 1.0;
-	funcPar->f = 5.0;
-	funcPar->a = 3.14159265358979323846;
+	char* fileInput = nullptr, *fileOutput = nullptr;
+
+    for(int i = 0; i < argc; i++)
+	{
+		if(strcmp(argv[i], "-i") == 0)
+		{
+			fileIO[0] = argv[i + 1];
+			i++;
+		}
+		if(strcmp(argv[i], "-o") == 0)
+		{
+			fileIO[1] = argv[i + 1];
+			i++;
+		}
+		if(strcmp(argv[i], "-A") == 0)
+		{
+			funcPar->A = atof(argv[i + 1]);
+			i++;
+		}
+		if(strcmp(argv[i], "-a") == 0)
+		{
+			funcPar->a = atof(argv[i + 1]);
+			i++;
+		}
+		if(strcmp(argv[i], "-f") == 0)
+		{
+			funcPar->f = atof(argv[i + 1]);
+			i++;
+		}
+	}
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-	InputInfo* input;
-	OutputInfo* output;
+	InputFuncPar funcPar;
+
+	funcPar.A = 0.0;
+	funcPar.a = 0.0;
+	funcPar.f = 0.0;
+
+	char* fileIO[2] = {nullptr, nullptr};
+
+	ParseCommandArgs(argc, argv, fileIO, &funcPar);
 	
-	input = InitializeInput();
+	char* fileInput = fileIO[0], *fileOutput = fileIO[1];
+
+	if((fileInput == nullptr) || (fileOutput == nullptr))
+		return 1;
+
+	InputInfo* input = InitializeInput();
 
 	if(input == nullptr)
 		return 1;
 
-	output = InitializeOutput();
+	OutputInfo* output = InitializeOutput();
 
 	if(output == nullptr)
 		return 1;
 
 	bool ok;
 
-	ok = ReadOutputToFile(input, output, FILE_INPUT);
+	ok = ReadOutputToFile(input, output, fileInput);
 	
 	printf("Read file...%s\n",ok ? "OK" : "FALSE");
 
 	if(!ok)
 		return 1;
 
-	InputFuncPar funcPar;
-
-	initializeFuncPar(&funcPar);
-
 	printf("Calculated absorption map...\n");
 	MSL_3D(input->area, output->absorption, &funcPar);
+	
 	printf("Calculated scattering map...\n");
 	MSL_3D(input->area, output->scatteringMap, &funcPar);
+	
+	printf("Calculated depth map...\n");
+	MSL_3D(input->area, output->depthMap, &funcPar);
+
 	printf("Calculated detectors map...\n");
 	MSL_2D(input->area, output->weightInGridDetector, &funcPar);
-
-	ok = WriteOutputToFile(input, output, FILE_OUTPUT);
+	
+	ok = WriteOutputToFile(input, output, fileOutput);
 
 	printf("Write file...%s\n",ok ? "OK" : "FALSE");
 

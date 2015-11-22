@@ -4,18 +4,49 @@
 
 #define M_PI       3.14159265358979323846
 
-double calculateScaledCoefficient(InputFuncPar* funcPar, double x)
+double CalculateScaledCoefficient(InputFuncPar* funcPar, double x)
 {
-//	double result = funcPar->A * cos(2.0 * M_PI * funcPar->f * x + funcPar->a) + funcPar->A;
+	//double result = funcPar->A * cos(2.0 * M_PI * funcPar->f * x + funcPar->a) + funcPar->A;
 	
-	double result = funcPar->A * cos(funcPar->f * x + funcPar->a) + funcPar->A;
+	// косинус w = funcPar->f
+	//double result = funcPar->A + funcPar->A * cos(funcPar->f * x);
+	
+	//полосы w = funcPar->f, p = funcPar->a, corner.x = funcPar->A
+	
+	double result, tmp;
+	
+	tmp = funcPar->a;
+	x += funcPar->A;
 
-	if(result > funcPar->A)
-		result = 2.0 * funcPar->A;
-	else
+	while(x > tmp)
+		x -= tmp;
+
+	if(x > funcPar->f)
 		result = 0.0;
+	else
+		result = 1.0;
 
 	return result;
+}
+
+double GetMaxFunc(Area* area, InputFuncPar* funcPar)
+{
+	double start = area->corner.x;
+	double step = area->length.x / area->partitionNumber.x;
+
+	double max = CalculateScaledCoefficient(funcPar, start);
+
+	double x, tmp;
+	for(int i = 1; i <= area->partitionNumber.x; i++)
+	{
+		x = start + i * step;
+		tmp = CalculateScaledCoefficient(funcPar, x);
+
+		if(tmp > max)
+			max = tmp;
+	}
+
+	return max;
 }
 
 void weightNormalization2D(Area* area, double* weight, double scaled)
@@ -265,7 +296,7 @@ void MSL_2D(Area* area, double* resWeight, InputFuncPar* funcPar)
 	int n = area->partitionNumber.y;
 
 	double lengthOnePartX = area->length.x / area->partitionNumber.x;
-	double centerFirstX = area->corner.x + lengthOnePartX / 2.0;
+	double centerX = area->corner.x + area->length.x / 2.0;
 
 	double* originWeight = new double[m * n];
 
@@ -276,14 +307,14 @@ void MSL_2D(Area* area, double* resWeight, InputFuncPar* funcPar)
 
 	for(i = -m / 2; i <= m / 2; i++)
 	{
-		x = centerFirstX + lengthOnePartX * i;
-		scaledCoefficient = calculateScaledCoefficient(funcPar, x);
+		x = centerX + lengthOnePartX * i;
+		scaledCoefficient = CalculateScaledCoefficient(funcPar, x);
 
 		for(j = -n / 2; j <= n / 2; j++)
 			sumMatrix2D(area, resWeight, originWeight, i, j, scaledCoefficient);
 	}
 
-	weightNormalization2D(area, resWeight, 2.0 * funcPar->A);
+	weightNormalization2D(area, resWeight, GetMaxFunc(area, funcPar));
 
 	delete[] originWeight;
 }
@@ -297,7 +328,7 @@ void MSL_3D(Area* area, double* resWeight, InputFuncPar* funcPar)
 	int p = area->partitionNumber.z;
 
 	double lengthOnePartX = area->length.x / area->partitionNumber.x;
-	double centerFirstX = area->corner.x + lengthOnePartX / 2.0;
+	double centerX = area->corner.x + area->length.x / 2.0;
 
 	double* originWeight = new double[m * n * p];
 
@@ -308,14 +339,14 @@ void MSL_3D(Area* area, double* resWeight, InputFuncPar* funcPar)
 
 	for(i = -m / 2; i <= m / 2; i++)
 	{
-		x = centerFirstX + lengthOnePartX * i;
-		scaledCoefficient = calculateScaledCoefficient(funcPar, x);
+		x = centerX + lengthOnePartX * i;
+		scaledCoefficient = CalculateScaledCoefficient(funcPar, x);
 
 		for(j = -n / 2; j <= n / 2; j++)
 			sumMatrix3D(MATRIX_3D_MODE_XY, area, resWeight, originWeight, i, j, scaledCoefficient);
 	}
 
-	weightNormalization3D(area, resWeight, 2.0 * funcPar->A);
+	weightNormalization3D(area, resWeight, GetMaxFunc(area, funcPar));
 
 	delete[] originWeight;
 }

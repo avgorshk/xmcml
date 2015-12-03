@@ -61,6 +61,14 @@ typedef struct __LayerInfo
     int numberOfSurfaces;
 } LayerInfo;
 
+typedef struct __StartDirectionInfo
+{
+	int startDirectionMode;	//1 - use Gauss direction, 0 - use start direction(for all photons)
+	double3 startDirection;
+	double standardDeviation;
+	double distance;
+}StartDirectionInfo;
+
 typedef struct __InputInfo
 {
 	uint64 numberOfPhotons;
@@ -79,7 +87,7 @@ typedef struct __InputInfo
     double timeFinish;
     int timeScaleSize;
 	double3 startPosition;
-	double3 startDirection;
+	StartDirectionInfo startDirectionInfo; 
     byte useBiasing;
     uint weightIntegralPrecision;
     uint weightTablePrecision;

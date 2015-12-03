@@ -65,6 +65,14 @@ void ParseCmd(int argc, char* argv[], CmdArguments* args)
         {
             args->backupPortionPerNode = atoi(argv[i + 1]);
         }
+		else if (strcmp(argv[i], "-x") == 0)
+        {
+			args->launchPointX = atof(argv[i + 1]);
+        }
+		else if (strcmp(argv[i], "-y") == 0)
+        {
+			args->launchPointY = atof(argv[i + 1]);
+        }
     }
 
     if (args->outputFileName == NULL)

@@ -82,9 +82,14 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+	/*input.startPosition.x = args.launchPointX;
+	input.startPosition.y = args.launchPointY;*/
+
     if (mpi_rank == 0)
     {       
         isOk = ParseInputFile(args.inputFileName, &input);
+		input.startPosition.x = args.launchPointX;
+		input.startPosition.y = args.launchPointY;
         printf("Parsing input file...%s\n", isOk ? "OK" : "FALSE");
         if (!isOk) 
         {

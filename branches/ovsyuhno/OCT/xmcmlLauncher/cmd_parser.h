@@ -11,6 +11,8 @@ typedef struct __CmdArguments
     int numberOfThreads;
     unsigned int seed;
     unsigned int backupPortionPerNode;
+	double launchPointX;
+	double launchPointY;
 } CmdArguments;
 
 void ParseCmd(int argc, char* argv[], CmdArguments* args);

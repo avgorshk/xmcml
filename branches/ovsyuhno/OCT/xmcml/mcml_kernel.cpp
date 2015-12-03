@@ -36,7 +36,7 @@ double ComputeSpecularReflectance(LayerInfo* layer)
 	return directReflection1;
 }
 
-void ComputePosition(MCG59* randomGenerator, PhotonState* photon, double standardDeviation)
+void ComputeStartPosition(MCG59* randomGenerator, PhotonState* photon, double standardDeviation)
 {
 	double u, v, s;
 	do
@@ -45,8 +45,8 @@ void ComputePosition(MCG59* randomGenerator, PhotonState* photon, double standar
 		v = 2 * NextMCG59(randomGenerator) - 1;
 		s = u * u + v * v;
 	} while((s >= 1) || (s == 0.0));
-	photon->position.x = standardDeviation * u * sqrt(-2 * log(s) / s);
-	photon->position.y = standardDeviation * v * sqrt(-2 * log(s) / s);
+	photon->position.x += standardDeviation * u * sqrt(-2 * log(s) / s);
+	photon->position.y += standardDeviation * v * sqrt(-2 * log(s) / s);
 }
 
 void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* output, 
@@ -54,12 +54,14 @@ void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* out
 {
 	*debind += 1;
     PhotonState photon;
+	photon.position.x = input->startPosition.x;
+	photon.position.y = input->startPosition.y;
+	photon.position.z = input->startPosition.z;
 
     trajectory->position = 0;
 
-	ComputePosition(randomGenerator, &photon, input->standardDeviation);
     
-    LaunchPhoton(input, &photon, specularReflectance);
+	LaunchPhoton(input, &photon, specularReflectance, randomGenerator);
     while (!photon.isDead)
     {
         int layerId = photon.layerId;
@@ -141,7 +143,42 @@ void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* out
     }
 }
 
-void LaunchPhoton(InputInfo* input, PhotonState* photon, double specularReflectance)
+
+
+void ComputeStartDirection(InputInfo* input, PhotonState* photon, MCG59* randomGenerator)
+{
+	if(input->startDirectionInfo.startDirectionMode == 0)
+	{
+		photon->direction.x = input->startDirectionInfo.startDirection.x;
+		photon->direction.y = input->startDirectionInfo.startDirection.y;
+		photon->direction.z = input->startDirectionInfo.startDirection.z;
+	}
+	else
+	{
+		double3 directionPoint;
+		double u, v, s, norm;
+		do
+		{
+			u = 2 * NextMCG59(randomGenerator) - 1;
+			v = 2 * NextMCG59(randomGenerator) - 1;
+			s = u * u + v * v;
+		} while((s >= 1) || (s == 0.0));
+		directionPoint.x += input->startDirectionInfo.standardDeviation * u * sqrt(-2 * log(s) / s);
+		directionPoint.y += input->startDirectionInfo.standardDeviation * v * sqrt(-2 * log(s) / s);
+		directionPoint.z = input->startDirectionInfo.distance;
+		directionPoint.x += input->startPosition.x;
+		directionPoint.y += input->startPosition.y;
+		photon->direction.x = directionPoint.x - photon->position.x;
+		photon->direction.y = directionPoint.y - photon->position.y;
+		photon->direction.z = directionPoint.z - photon->position.z;
+		norm = sqrt(photon->direction.x * photon->direction.x + photon->direction.y * photon->direction.y + photon->direction.z * photon->direction.z);
+		photon->direction.x /= norm;
+		photon->direction.y /= norm;
+		photon->direction.z /= norm;
+	}
+}
+
+void LaunchPhoton(InputInfo* input, PhotonState* photon, double specularReflectance, MCG59* randomGenerator)
 {
 	photon->weight = START_PHOTON_WEIGHT - specularReflectance;
 	photon->isDead = false;
@@ -152,10 +189,12 @@ void LaunchPhoton(InputInfo* input, PhotonState* photon, double specularReflecta
 	photon->otherRange = 0.0;
 	
 	photon->position.z = MIN_DISTANCE;
+	ComputeStartPosition(randomGenerator, photon, input->standardDeviation);
+	ComputeStartDirection(input, photon,randomGenerator);
 
-	photon->direction.x = input->startDirection.x;
+	/*photon->direction.x = input->startDirection.x;
 	photon->direction.y = input->startDirection.y;
-	photon->direction.z = input->startDirection.z;
+	photon->direction.z = input->startDirection.z;*/
 
 	for (int i = 0; i < input->numberOfLayers; ++i)
 		photon->visitedLayers[i] = false;

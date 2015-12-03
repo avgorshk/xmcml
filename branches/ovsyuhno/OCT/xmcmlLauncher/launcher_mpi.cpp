@@ -159,8 +159,11 @@ void SendInputToAll(InputInfo* input, int pid)
     MPI_Bcast(&(input->attractiveFactor), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     MPI_Bcast(&(input->useBiasing), 1, MPI_BYTE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(&(input->targetRangeLayers), MAX_LAYERS, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
+	MPI_Bcast(&(input->startDirectionInfo.startDirectionMode), 1, MPI_INT, 0, MPI_COMM_WORLD);
+	MPI_Bcast(&(input->startDirectionInfo.standardDeviation), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	MPI_Bcast(&(input->startDirectionInfo.distance), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	SendDouble3ToAll(&(input->startPosition));
-	SendDouble3ToAll(&(input->startDirection));
+	SendDouble3ToAll(&(input->startDirectionInfo.startDirection));
     SendDouble3ToAll(&(input->targetPoint));
 
     if (pid > 0)

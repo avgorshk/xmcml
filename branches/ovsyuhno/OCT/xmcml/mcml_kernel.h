@@ -12,7 +12,9 @@ void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* out
     MCG59* randomGenerator, PhotonTrajectory* trajectory, int* debind);
 
 //Private
-void LaunchPhoton(InputInfo* input, PhotonState* photon, double specularReflectance);
+void LaunchPhoton(InputInfo* input, PhotonState* photon, double specularReflectance, MCG59* randomGenerator);
+void ComputeStartDirection(InputInfo* input, PhotonState* photon, MCG59* randomGenerator);
+void ComputeStartPosition(MCG59* randomGenerator, PhotonState* photon, double standardDeviation);
 void MovePhoton(PhotonState* photon);
 int GetAreaIndex(double3 photonPosition, Area* area);
 void CrossBoundary(PhotonState* photon, InputInfo* input, OutputInfo* output, 

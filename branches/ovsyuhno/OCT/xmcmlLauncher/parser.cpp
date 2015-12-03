@@ -10,7 +10,7 @@
 #define DEFAULT_INTEGRAL_PRECISION 128
 #define DEFAULT_TABLE_PRECISION    262144
 #define DEFAULT_ATTRACTIVE_FACTOR  1.0
-#define Pi 3.141529
+#define Pi 3.141592
 
 #ifdef _WIN32
 	#define atoll(S) _atoi64(S)
@@ -28,9 +28,12 @@ bool ParseInputFile(char* fileName, InputInfo* input)
 	input->startPosition.y = 0.0;
 	input->startPosition.z = 0.0;
 
-	input->startDirection.x = 0.0;
-	input->startDirection.y = 0.0;
-	input->startDirection.z = 1.0;
+	input->startDirectionInfo.startDirectionMode = 0;
+	input->startDirectionInfo.startDirection.x = 0.0;
+	input->startDirectionInfo.startDirection.x = 0.0;
+	input->startDirectionInfo.startDirection.z = 1.0;
+	input->startDirectionInfo.standardDeviation = 0.0;
+	input->startDirectionInfo.distance = 1.0;
 
     input->useBiasing = 0;
     input->weightIntegralPrecision = DEFAULT_INTEGRAL_PRECISION;
@@ -121,25 +124,43 @@ bool ParseInputFile(char* fileName, InputInfo* input)
                 }
 			}
 		}
-		else if (strcmp(node->Value(), "StartDirection") == 0)
+		else if (strcmp(node->Value(), "StartDirectionBlock") == 0)
 		{
-			TiXmlElement* startDirectionChild = node->FirstChildElement();
-			for (startDirectionChild; startDirectionChild; startDirectionChild = startDirectionChild->NextSiblingElement())
+			TiXmlElement* startDirectionBlockChild = node->FirstChildElement();
+			for (startDirectionBlockChild; startDirectionBlockChild; startDirectionBlockChild = startDirectionBlockChild->NextSiblingElement())
 			{
-				if (strcmp(startDirectionChild->Value(), "X") == 0)
-                {
-					input->startDirection.x = atof(startDirectionChild->GetText());
-                }
-                else if (strcmp(startDirectionChild->Value(), "Y") == 0)
-                {
-                    input->startDirection.y = atof(startDirectionChild->GetText());
-                }
-                else if (strcmp(startDirectionChild->Value(), "Z") == 0)
-                {
-                    input->startDirection.z = atof(startDirectionChild->GetText());
-                }
+				if (strcmp(startDirectionBlockChild->Value(), "StartDirection") == 0)
+				{
+					TiXmlElement* startDirectionChild = node->FirstChildElement();
+					for (startDirectionChild; startDirectionChild; startDirectionChild = startDirectionChild->NextSiblingElement())
+					{
+						if (strcmp(startDirectionChild->Value(), "X") == 0)
+						{
+							input->startDirectionInfo.startDirection.x = atof(startDirectionChild->GetText());
+						}
+						else if (strcmp(startDirectionChild->Value(), "Y") == 0)
+						{
+							input->startDirectionInfo.startDirection.y = atof(startDirectionChild->GetText());
+						}
+						else if (strcmp(startDirectionChild->Value(), "Z") == 0)
+						{
+							input->startDirectionInfo.startDirection.z = atof(startDirectionChild->GetText());
+						}
+					}
+				}
+				else if (strcmp(startDirectionBlockChild->Value(), "StandardDeviation") == 0)
+				{
+					input->startDirectionInfo.standardDeviation = atof(startDirectionBlockChild->GetText());
+					input->startDirectionInfo.startDirectionMode = 1;
+				}
+				else if (strcmp(startDirectionBlockChild->Value(), "Distance") == 0)
+				{
+					input->startDirectionInfo.distance = atof(startDirectionBlockChild->GetText());
+					input->startDirectionInfo.startDirectionMode = 1;
+				}
 			}
 		}
+
         else if (strcmp(node->Value(), "Area") == 0)
         {
             input->area = new Area;

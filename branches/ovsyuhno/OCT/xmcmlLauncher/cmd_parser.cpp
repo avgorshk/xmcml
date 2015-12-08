@@ -29,6 +29,8 @@ void ParseCmd(int argc, char* argv[], CmdArguments* args)
     args->numberOfThreads = GetMaxThreads();
     args->seed = 777;
     args->backupPortionPerNode = 10000000;
+	args->launchPointX = 0.0;
+	args->launchPointY = 0.0;
 
     int index = argc - 2;
     for (int i = index; i >= 0; i -= 2)

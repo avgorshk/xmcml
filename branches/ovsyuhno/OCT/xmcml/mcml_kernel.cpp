@@ -156,6 +156,9 @@ void ComputeStartDirection(InputInfo* input, PhotonState* photon, MCG59* randomG
 	else
 	{
 		double3 directionPoint;
+		directionPoint.x = 0.0;
+		directionPoint.y = 0.0;
+		directionPoint.z = 0.0;
 		double u, v, s, norm;
 		do
 		{

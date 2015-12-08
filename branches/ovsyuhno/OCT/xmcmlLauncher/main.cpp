@@ -90,6 +90,17 @@ int main(int argc, char* argv[])
         isOk = ParseInputFile(args.inputFileName, &input);
 		input.startPosition.x = args.launchPointX;
 		input.startPosition.y = args.launchPointY;
+		for(int i = 0; i < input.numberOfRingDetectors; i++)
+		{
+			input.ringDetector[i].center.x += input.startPosition.x;
+			input.ringDetector[i].center.y += input.startPosition.y;
+		}
+		for(int i = 0; i < input.numberOfCubeDetectors; i++)
+		{
+			input.cubeDetector[i].center.x += input.startPosition.x;
+			input.cubeDetector[i].center.y += input.startPosition.y;
+		}
+
         printf("Parsing input file...%s\n", isOk ? "OK" : "FALSE");
         if (!isOk) 
         {

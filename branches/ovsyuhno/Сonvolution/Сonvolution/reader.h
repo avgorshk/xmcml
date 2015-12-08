@@ -12,6 +12,7 @@ typedef struct __InputInfo
 	char* outputFileName;
 	double convolutionSetting;
 	int writeFileMode;
+	double lyambda;
 } InputInfo;
 
 bool ReadFromFile(InputInfo* input, char* fileName);

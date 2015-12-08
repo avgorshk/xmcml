@@ -9,6 +9,8 @@
 #include "reader.h"
 
 #define MAX_DISTANSE 1000
+#define EPSILON 1e-15
+#define PI 3.141592
 
 typedef struct __CmdArguments
 {
@@ -63,12 +65,24 @@ void writeToFile(InputInfo* input, double* resultMatrix)
 	
 		outputFile << input->TimeFinish[input->timeScaleSize - 1];
 	}
-	outputFile << "\n";
-	for(int i = 0; i < input->timeScaleSize; i ++)
+	if(input->writeFileMode == 2)
 	{
-		tmp = std::to_string((long double)resultMatrix[i]);
-		//_dtos(&tmp);
-		outputFile << tmp << '	';
+		for(int i = 0; i < input->timeScaleSize; i ++)
+		{
+			tmp = std::to_string((long double)resultMatrix[i]);
+			//_dtos(&tmp);
+			outputFile << tmp << '\n';
+		}
+	}
+	else
+	{
+	outputFile << "\n";
+		for(int i = 0; i < input->timeScaleSize; i ++)
+		{
+			tmp = std::to_string((long double)resultMatrix[i]);
+			//_dtos(&tmp);
+			outputFile << tmp << '	';
+		}
 	}
 	//outputFile << "\n";
 	outputFile.close();
@@ -103,6 +117,9 @@ void main(int argc, char* argv[])
 	args.timeStart = 0;
 	args.maxDistance = 10;
 	args.outputFileName = "default_out.txt";
+
+	input.lyambda = 0.0;
+	
     for (int i = index; i >= 0; i -= 2)
     {
         if (strcmp(argv[i], "-i") == 0)	//input file name
@@ -125,6 +142,16 @@ void main(int argc, char* argv[])
         {
 			input.writeFileMode = atoi(argv[i + 1]);
         }
+		else if (strcmp(argv[i], "-c") == 0)	//write file mode: 0 - w, 1 - app
+        {
+			double lyambda = atof(argv[i + 1]);
+			if(lyambda < EPSILON)
+			{
+				printf("Eror lyambda <= 0");
+				return;
+			}
+			input.lyambda = lyambda;
+        }
 	}
 
 	bool f = ReadFromFile(&input, input.inputFileName);
@@ -138,7 +165,9 @@ void main(int argc, char* argv[])
 	{
 		for(int j = Mmax(0, i - MAX_DISTANSE); j < Mmin(input.timeScaleSize, i + MAX_DISTANSE); j++)
 		{
-			resultMatrix[i] += inputMatrix[j] * exp(-(i - j) * (i - j) * stepSize * stepSize / (input.convolutionSetting * input.convolutionSetting));
+			resultMatrix[i] += inputMatrix[j] * cos(2 * PI * fabs((i - j) * stepSize) * input.lyambda) * exp(-(i - j) * (i - j) * stepSize * stepSize /
+				(input.convolutionSetting * input.convolutionSetting)) / (sqrt(PI) * exp(-PI * PI * input.convolutionSetting * 
+				input.convolutionSetting * input.lyambda * input.lyambda) * input.convolutionSetting);
 		}
 	}
 	writeToFile(&input, resultMatrix);

@@ -1,9 +1,7 @@
-s0=load('surface0.txt')
-s1=load('surface1.txt')
-s2=load('surface2.txt')
-A=load('new.txt')
-imagesc(0:680, 0:4000, log10(A'))
-axis ([0, 680, 0, 4000])
+
+A=load('result_with_cos.txt')
+imagesc(0:100, 0:125, log10(A'))
+axis ([0, 100, 0, 125])
 
 
 colormap(hot)

@@ -52,7 +52,6 @@ void writeToFile(InputInfo* input, double* resultMatrix)
 		writeMode = std::ofstream::app;
 
 	std::ofstream outputFile(input->outputFileName, writeMode);
-	//std::ofstream outputFile(input->outputFileName);
 	std::string tmp;
 	if(input->writeFileMode == 0)
 	{
@@ -70,7 +69,6 @@ void writeToFile(InputInfo* input, double* resultMatrix)
 		for(int i = 0; i < input->timeScaleSize; i ++)
 		{
 			tmp = std::to_string((long double)resultMatrix[i]);
-			//_dtos(&tmp);
 			outputFile << tmp << '\n';
 		}
 	}
@@ -80,11 +78,9 @@ void writeToFile(InputInfo* input, double* resultMatrix)
 		for(int i = 0; i < input->timeScaleSize; i ++)
 		{
 			tmp = std::to_string((long double)resultMatrix[i]);
-			//_dtos(&tmp);
 			outputFile << tmp << '	';
 		}
 	}
-	//outputFile << "\n";
 	outputFile.close();
 }
 
@@ -142,7 +138,7 @@ void main(int argc, char* argv[])
         {
 			input.writeFileMode = atoi(argv[i + 1]);
         }
-		else if (strcmp(argv[i], "-c") == 0)	//write file mode: 0 - w, 1 - app
+		else if (strcmp(argv[i], "-c") == 0)
         {
 			double lyambda = atof(argv[i + 1]);
 			if(lyambda < EPSILON)
@@ -150,7 +146,7 @@ void main(int argc, char* argv[])
 				printf("Eror lyambda <= 0");
 				return;
 			}
-			input.lyambda = lyambda;
+			input.lyambda = 1.0 / lyambda;
         }
 	}
 
@@ -165,9 +161,8 @@ void main(int argc, char* argv[])
 	{
 		for(int j = Mmax(0, i - MAX_DISTANSE); j < Mmin(input.timeScaleSize, i + MAX_DISTANSE); j++)
 		{
-			resultMatrix[i] += inputMatrix[j] * cos(2 * PI * fabs((i - j) * stepSize) * input.lyambda) * exp(-(i - j) * (i - j) * stepSize * stepSize /
-				(input.convolutionSetting * input.convolutionSetting)) / (sqrt(PI) * exp(-PI * PI * input.convolutionSetting * 
-				input.convolutionSetting * input.lyambda * input.lyambda) * input.convolutionSetting);
+			resultMatrix[i] += inputMatrix[j] * cos(2 * PI * (i - j) * stepSize * input.lyambda) * exp(-(i - j) * (i - j) * stepSize * stepSize /
+				(input.convolutionSetting * input.convolutionSetting));
 		}
 	}
 	writeToFile(&input, resultMatrix);

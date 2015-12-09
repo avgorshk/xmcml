@@ -75,7 +75,6 @@ int ReadSection(FILE* file, InputInfo* input)
 bool ReadFromFile(InputInfo* input, char* fileName)
 {
     FILE* file = fopen(fileName, "rb");
-	//int f;
 
 	while(true)
 	{

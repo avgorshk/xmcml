@@ -698,7 +698,7 @@ int GetDetectorId(PhotonState* photon, InputInfo* input)
                     photon->direction.z * photon->direction.z;
                 double angleCos = (-photon->direction.z) / directionVectorLenght;
 
-                if (angleCos > cos(input->ringDetector[i].targetAngle * PI / 180.0))
+                if (angleCos > cos(input->cubeDetector[i].targetAngle * PI / 180.0))
                 {
                     return i;
                 }

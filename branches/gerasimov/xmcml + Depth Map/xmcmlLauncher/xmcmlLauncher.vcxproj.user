@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-i ..\test.xml -s ..\test.surface -o ..\res.mcml.out</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <MpiDebuggerSchedulerNode>localhost/2</MpiDebuggerSchedulerNode>
+    <MpiDebuggerApplicationCommand>
+    </MpiDebuggerApplicationCommand>
+    <MpiDebuggerApplicationArguments>-i air_only_830.xml -s intralipid_only.surface -o res.mcml.out -nthreads 1</MpiDebuggerApplicationArguments>
+    <MpiDebuggerMpiExecCommand>C:\Program Files\Microsoft HPC Pack 2008 R2\Bin\mpiexec.exe</MpiDebuggerMpiExecCommand>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-i ..\test.xml -s ..\test.surface -o ..\res.mcml.out</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <MpiDebuggerSchedulerNode>localhost/2</MpiDebuggerSchedulerNode>
+    <MpiDebuggerApplicationArguments>-i air_only_830.xml -s intralipid_only.surface -o res.mcml.out -nthreads 1 &gt; 1.txt</MpiDebuggerApplicationArguments>
+    <MpiDebuggerMpiExecCommand>C:\Program Files\Microsoft HPC Pack 2008 R2\Bin\mpiexec.exe</MpiDebuggerMpiExecCommand>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommandArguments>-i ../../exp.xml -s ../../exp.surface -o result_exp.mcml.out</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>-i ../../exp.xml -s ../../exp.surface -o result_exp.mcml.out</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>

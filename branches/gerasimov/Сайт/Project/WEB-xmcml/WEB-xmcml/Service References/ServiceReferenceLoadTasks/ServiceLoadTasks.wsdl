@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="WEB-xmcml" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="WEB-xmcml" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="WEB-xmcml">
+      <s:element name="Init">
+        <s:complexType />
+      </s:element>
+      <s:element name="InitResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetCurrentID">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetCurrentIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetCurrentIDResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ResetID">
+        <s:complexType />
+      </s:element>
+      <s:element name="ResetIDResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetIDNewTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="taskName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetIDNewTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetIDNewTaskResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathXML">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathXMLResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPathXMLResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathSURFACE">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathSURFACEResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPathSURFACEResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="InitSoapIn">
+    <wsdl:part name="parameters" element="tns:Init" />
+  </wsdl:message>
+  <wsdl:message name="InitSoapOut">
+    <wsdl:part name="parameters" element="tns:InitResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCurrentIDSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCurrentID" />
+  </wsdl:message>
+  <wsdl:message name="GetCurrentIDSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCurrentIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="ResetIDSoapIn">
+    <wsdl:part name="parameters" element="tns:ResetID" />
+  </wsdl:message>
+  <wsdl:message name="ResetIDSoapOut">
+    <wsdl:part name="parameters" element="tns:ResetIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetIDNewTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:GetIDNewTask" />
+  </wsdl:message>
+  <wsdl:message name="GetIDNewTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:GetIDNewTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPathXMLSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPathXML" />
+  </wsdl:message>
+  <wsdl:message name="GetPathXMLSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPathXMLResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPathSURFACESoapIn">
+    <wsdl:part name="parameters" element="tns:GetPathSURFACE" />
+  </wsdl:message>
+  <wsdl:message name="GetPathSURFACESoapOut">
+    <wsdl:part name="parameters" element="tns:GetPathSURFACEResponse" />
+  </wsdl:message>
+  <wsdl:portType name="Service1Soap">
+    <wsdl:operation name="Init">
+      <wsdl:input message="tns:InitSoapIn" />
+      <wsdl:output message="tns:InitSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentID">
+      <wsdl:input message="tns:GetCurrentIDSoapIn" />
+      <wsdl:output message="tns:GetCurrentIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ResetID">
+      <wsdl:input message="tns:ResetIDSoapIn" />
+      <wsdl:output message="tns:ResetIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetIDNewTask">
+      <wsdl:input message="tns:GetIDNewTaskSoapIn" />
+      <wsdl:output message="tns:GetIDNewTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPathXML">
+      <wsdl:input message="tns:GetPathXMLSoapIn" />
+      <wsdl:output message="tns:GetPathXMLSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPathSURFACE">
+      <wsdl:input message="tns:GetPathSURFACESoapIn" />
+      <wsdl:output message="tns:GetPathSURFACESoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="Service1Soap" type="tns:Service1Soap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Init">
+      <soap:operation soapAction="WEB-xmcml/Init" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentID">
+      <soap:operation soapAction="WEB-xmcml/GetCurrentID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResetID">
+      <soap:operation soapAction="WEB-xmcml/ResetID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetIDNewTask">
+      <soap:operation soapAction="WEB-xmcml/GetIDNewTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathXML">
+      <soap:operation soapAction="WEB-xmcml/GetPathXML" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathSURFACE">
+      <soap:operation soapAction="WEB-xmcml/GetPathSURFACE" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="Service1Soap12" type="tns:Service1Soap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Init">
+      <soap12:operation soapAction="WEB-xmcml/Init" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCurrentID">
+      <soap12:operation soapAction="WEB-xmcml/GetCurrentID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResetID">
+      <soap12:operation soapAction="WEB-xmcml/ResetID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetIDNewTask">
+      <soap12:operation soapAction="WEB-xmcml/GetIDNewTask" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathXML">
+      <soap12:operation soapAction="WEB-xmcml/GetPathXML" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathSURFACE">
+      <soap12:operation soapAction="WEB-xmcml/GetPathSURFACE" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Service1">
+    <wsdl:port name="Service1Soap" binding="tns:Service1Soap">
+      <soap:address location="http://localhost:5145/ServiceLoadTasks.asmx" />
+    </wsdl:port>
+    <wsdl:port name="Service1Soap12" binding="tns:Service1Soap12">
+      <soap12:address location="http://localhost:5145/ServiceLoadTasks.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

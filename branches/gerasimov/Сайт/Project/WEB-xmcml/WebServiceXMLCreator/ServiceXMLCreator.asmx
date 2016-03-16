@@ -1,0 +1,1 @@
+﻿<%@ WebService Language="C#" CodeBehind="ServiceXMLCreator.asmx.cs" Class="WebServiceXMLCreator.Service1" %>

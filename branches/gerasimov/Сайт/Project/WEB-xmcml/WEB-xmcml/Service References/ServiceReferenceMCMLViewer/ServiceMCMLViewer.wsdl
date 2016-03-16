@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="WEB-xmcml" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="WEB-xmcml" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="WEB-xmcml">
+      <s:element name="GetMode">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetModeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetModeResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="OpenMCML">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ID_MCML" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="MODE_OPEN" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="detectorID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="OpenMCMLResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="OpenMCMLResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInfoMCML">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetInfoMCMLResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetInfoMCMLResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitFiles">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KEY_SESSION" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="width" type="s:double" />
+            <s:element minOccurs="1" maxOccurs="1" name="height" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="var" type="s:double" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitFilesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="InitFilesResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetNameImageLogo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KEY_SESSION" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetNameImageLogoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetNameImageLogoResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathImageOriginal">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KEY_SESSION" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathImageOriginalResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPathImageOriginalResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathMatrix">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KEY_SESSION" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathMatrixResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPathMatrixResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathTimeScales">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KEY_SESSION" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathTimeScalesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPathTimeScalesResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathAllAsText">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KEY_SESSION" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathAllAsTextResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPathAllAsTextResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathWeights">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KEY_SESSION" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="mode" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathWeightsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPathWeightsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathRanges">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KEY_SESSION" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="mode" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPathRangesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPathRangesResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInfoOfArea">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetInfoOfAreaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetInfoOfAreaResult" type="tns:ArrayOfDouble" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDouble">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="double" type="s:double" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetNumberOfDetectors">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetNumberOfDetectorsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetNumberOfDetectorsResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetModeSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMode" />
+  </wsdl:message>
+  <wsdl:message name="GetModeSoapOut">
+    <wsdl:part name="parameters" element="tns:GetModeResponse" />
+  </wsdl:message>
+  <wsdl:message name="OpenMCMLSoapIn">
+    <wsdl:part name="parameters" element="tns:OpenMCML" />
+  </wsdl:message>
+  <wsdl:message name="OpenMCMLSoapOut">
+    <wsdl:part name="parameters" element="tns:OpenMCMLResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetInfoMCMLSoapIn">
+    <wsdl:part name="parameters" element="tns:GetInfoMCML" />
+  </wsdl:message>
+  <wsdl:message name="GetInfoMCMLSoapOut">
+    <wsdl:part name="parameters" element="tns:GetInfoMCMLResponse" />
+  </wsdl:message>
+  <wsdl:message name="InitFilesSoapIn">
+    <wsdl:part name="parameters" element="tns:InitFiles" />
+  </wsdl:message>
+  <wsdl:message name="InitFilesSoapOut">
+    <wsdl:part name="parameters" element="tns:InitFilesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetNameImageLogoSoapIn">
+    <wsdl:part name="parameters" element="tns:GetNameImageLogo" />
+  </wsdl:message>
+  <wsdl:message name="GetNameImageLogoSoapOut">
+    <wsdl:part name="parameters" element="tns:GetNameImageLogoResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPathImageOriginalSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPathImageOriginal" />
+  </wsdl:message>
+  <wsdl:message name="GetPathImageOriginalSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPathImageOriginalResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPathMatrixSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPathMatrix" />
+  </wsdl:message>
+  <wsdl:message name="GetPathMatrixSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPathMatrixResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPathTimeScalesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPathTimeScales" />
+  </wsdl:message>
+  <wsdl:message name="GetPathTimeScalesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPathTimeScalesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPathAllAsTextSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPathAllAsText" />
+  </wsdl:message>
+  <wsdl:message name="GetPathAllAsTextSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPathAllAsTextResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPathWeightsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPathWeights" />
+  </wsdl:message>
+  <wsdl:message name="GetPathWeightsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPathWeightsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPathRangesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPathRanges" />
+  </wsdl:message>
+  <wsdl:message name="GetPathRangesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPathRangesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetInfoOfAreaSoapIn">
+    <wsdl:part name="parameters" element="tns:GetInfoOfArea" />
+  </wsdl:message>
+  <wsdl:message name="GetInfoOfAreaSoapOut">
+    <wsdl:part name="parameters" element="tns:GetInfoOfAreaResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetNumberOfDetectorsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetNumberOfDetectors" />
+  </wsdl:message>
+  <wsdl:message name="GetNumberOfDetectorsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetNumberOfDetectorsResponse" />
+  </wsdl:message>
+  <wsdl:portType name="Service1Soap">
+    <wsdl:operation name="GetMode">
+      <wsdl:input message="tns:GetModeSoapIn" />
+      <wsdl:output message="tns:GetModeSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="OpenMCML">
+      <wsdl:input message="tns:OpenMCMLSoapIn" />
+      <wsdl:output message="tns:OpenMCMLSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInfoMCML">
+      <wsdl:input message="tns:GetInfoMCMLSoapIn" />
+      <wsdl:output message="tns:GetInfoMCMLSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InitFiles">
+      <wsdl:input message="tns:InitFilesSoapIn" />
+      <wsdl:output message="tns:InitFilesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetNameImageLogo">
+      <wsdl:input message="tns:GetNameImageLogoSoapIn" />
+      <wsdl:output message="tns:GetNameImageLogoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPathImageOriginal">
+      <wsdl:input message="tns:GetPathImageOriginalSoapIn" />
+      <wsdl:output message="tns:GetPathImageOriginalSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPathMatrix">
+      <wsdl:input message="tns:GetPathMatrixSoapIn" />
+      <wsdl:output message="tns:GetPathMatrixSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPathTimeScales">
+      <wsdl:input message="tns:GetPathTimeScalesSoapIn" />
+      <wsdl:output message="tns:GetPathTimeScalesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPathAllAsText">
+      <wsdl:input message="tns:GetPathAllAsTextSoapIn" />
+      <wsdl:output message="tns:GetPathAllAsTextSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPathWeights">
+      <wsdl:input message="tns:GetPathWeightsSoapIn" />
+      <wsdl:output message="tns:GetPathWeightsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPathRanges">
+      <wsdl:input message="tns:GetPathRangesSoapIn" />
+      <wsdl:output message="tns:GetPathRangesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInfoOfArea">
+      <wsdl:input message="tns:GetInfoOfAreaSoapIn" />
+      <wsdl:output message="tns:GetInfoOfAreaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetNumberOfDetectors">
+      <wsdl:input message="tns:GetNumberOfDetectorsSoapIn" />
+      <wsdl:output message="tns:GetNumberOfDetectorsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="Service1Soap" type="tns:Service1Soap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetMode">
+      <soap:operation soapAction="WEB-xmcml/GetMode" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OpenMCML">
+      <soap:operation soapAction="WEB-xmcml/OpenMCML" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInfoMCML">
+      <soap:operation soapAction="WEB-xmcml/GetInfoMCML" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitFiles">
+      <soap:operation soapAction="WEB-xmcml/InitFiles" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNameImageLogo">
+      <soap:operation soapAction="WEB-xmcml/GetNameImageLogo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathImageOriginal">
+      <soap:operation soapAction="WEB-xmcml/GetPathImageOriginal" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathMatrix">
+      <soap:operation soapAction="WEB-xmcml/GetPathMatrix" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathTimeScales">
+      <soap:operation soapAction="WEB-xmcml/GetPathTimeScales" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathAllAsText">
+      <soap:operation soapAction="WEB-xmcml/GetPathAllAsText" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathWeights">
+      <soap:operation soapAction="WEB-xmcml/GetPathWeights" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathRanges">
+      <soap:operation soapAction="WEB-xmcml/GetPathRanges" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInfoOfArea">
+      <soap:operation soapAction="WEB-xmcml/GetInfoOfArea" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNumberOfDetectors">
+      <soap:operation soapAction="WEB-xmcml/GetNumberOfDetectors" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="Service1Soap12" type="tns:Service1Soap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetMode">
+      <soap12:operation soapAction="WEB-xmcml/GetMode" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OpenMCML">
+      <soap12:operation soapAction="WEB-xmcml/OpenMCML" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInfoMCML">
+      <soap12:operation soapAction="WEB-xmcml/GetInfoMCML" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitFiles">
+      <soap12:operation soapAction="WEB-xmcml/InitFiles" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNameImageLogo">
+      <soap12:operation soapAction="WEB-xmcml/GetNameImageLogo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathImageOriginal">
+      <soap12:operation soapAction="WEB-xmcml/GetPathImageOriginal" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathMatrix">
+      <soap12:operation soapAction="WEB-xmcml/GetPathMatrix" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathTimeScales">
+      <soap12:operation soapAction="WEB-xmcml/GetPathTimeScales" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathAllAsText">
+      <soap12:operation soapAction="WEB-xmcml/GetPathAllAsText" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathWeights">
+      <soap12:operation soapAction="WEB-xmcml/GetPathWeights" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPathRanges">
+      <soap12:operation soapAction="WEB-xmcml/GetPathRanges" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInfoOfArea">
+      <soap12:operation soapAction="WEB-xmcml/GetInfoOfArea" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNumberOfDetectors">
+      <soap12:operation soapAction="WEB-xmcml/GetNumberOfDetectors" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Service1">
+    <wsdl:port name="Service1Soap" binding="tns:Service1Soap">
+      <soap:address location="http://localhost:4875/ServiceMCMLViewer.asmx" />
+    </wsdl:port>
+    <wsdl:port name="Service1Soap12" binding="tns:Service1Soap12">
+      <soap12:address location="http://localhost:4875/ServiceMCMLViewer.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

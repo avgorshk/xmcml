@@ -95,6 +95,7 @@ typedef struct __OutputInfo
     uint64 numberOfPhotons;
 	double specularReflectance;
 	double* absorption;
+    double* scattering;
     int gridSize;
     DetectorInfo* detectorInfo;
     int numberOfDetectors;

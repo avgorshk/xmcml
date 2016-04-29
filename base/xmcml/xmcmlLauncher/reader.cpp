@@ -141,7 +141,7 @@ int ReadSectionNumberOfPhotons(FILE* file, OutputInfo* output)
     return 0;
 }
 
-int ReadSectionCommonTrajectories(FILE* file, OutputInfo* output)
+int ReadSectionAbsorption(FILE* file, OutputInfo* output)
 {
     unsigned long long int reading_items;
     int section;
@@ -149,7 +149,7 @@ int ReadSectionCommonTrajectories(FILE* file, OutputInfo* output)
     int gridSize;
 
     reading_items = fread(&section, sizeof(int), 1, file);
-    if (reading_items < 1 || section != MCML_SECTION_COMMON_TRAJECTORIES)
+    if (reading_items < 1 || section != MCML_SECTION_ABSORPTION)
         return -1;
 
     reading_items = fread(&section_length, sizeof(unsigned int), 1, file);
@@ -161,6 +161,32 @@ int ReadSectionCommonTrajectories(FILE* file, OutputInfo* output)
         return -1;
 
     reading_items = fread(output->absorption, sizeof(double), gridSize, file);
+    if (reading_items < gridSize)
+        return -1;
+
+    return 0;
+}
+
+int ReadSectionScattering(FILE* file, OutputInfo* output)
+{
+    unsigned long long int reading_items;
+    int section;
+    unsigned int section_length;
+    int gridSize;
+
+    reading_items = fread(&section, sizeof(int), 1, file);
+    if (reading_items < 1 || section != MCML_SECTION_SCATTERING)
+        return -1;
+
+    reading_items = fread(&section_length, sizeof(unsigned int), 1, file);
+    if (reading_items < 1)
+        return -1;
+
+    reading_items = fread(&gridSize, sizeof(int), 1, file);
+    if (reading_items < 1 || gridSize != output->gridSize)
+        return -1;
+
+    reading_items = fread(output->scattering, sizeof(double), gridSize, file);
     if (reading_items < gridSize)
         return -1;
 
@@ -347,7 +373,9 @@ int ReadOutputFormBackupFile(char* fileName, OutputInfo* output)
 	SkipCurrentSection(file); //MCML_SECTION_RING_DETECTORS
     SkipCurrentSection(file); //MCML_SECTION_SPECULAR_REFLECTANCE
 
-    if (ReadSectionCommonTrajectories(file, output) != 0)
+    if (ReadSectionAbsorption(file, output) != 0)
+        return -1;
+    if (ReadSectionScattering(file, output) != 0)
         return -1;
     if (ReadSectionDetectorWeights(file, output) != 0)
         return -1;

@@ -14,8 +14,12 @@ void InitOutput(InputInfo* input, OutputInfo* output)
     int gridSize = input->area->partitionNumber.x * 
         input->area->partitionNumber.y * input->area->partitionNumber.z;
     output->gridSize = gridSize;
+    
     output->absorption = new double[gridSize];
     memset(output->absorption, 0, gridSize * sizeof(double));
+
+    output->scattering = new double[gridSize];
+    memset(output->scattering, 0, gridSize * sizeof(double));
     
 	int numberOfDetectors = input->numberOfCubeDetectors + input->numberOfRingDetectors;
     output->numberOfDetectors = numberOfDetectors;
@@ -60,10 +64,13 @@ void InitThreadOutput(OutputInfo* dst, OutputInfo* src)
     dst->numberOfDetectors = src->numberOfDetectors;
     dst->numberOfPhotons = src->numberOfPhotons;
     dst->specularReflectance = src->specularReflectance;
-	//dst->detectorInfo->weight = src->detectorInfo->weight;
     
     dst->absorption = new double[dst->gridSize];
     memset(dst->absorption, 0, dst->gridSize*sizeof(double));
+    
+    dst->scattering = new double[dst->gridSize];
+    memset(dst->scattering, 0, dst->gridSize*sizeof(double));
+
 }
 
 void FreeOutput(OutputInfo* output)
@@ -73,6 +80,10 @@ void FreeOutput(OutputInfo* output)
         if (output->absorption != NULL)
         {
             delete[] output->absorption;
+        }
+        if (output->scattering != NULL)
+        {
+            delete[] output->scattering;
         }
         if (output->detectorInfo != NULL)
         {
@@ -97,6 +108,10 @@ void FreeThreadOutput(OutputInfo* output)
     if (output->absorption != NULL)
     {
         delete[] output->absorption;
+    }
+    if (output->scattering != NULL)
+    {
+        delete[] output->scattering;
     }
 }
 
@@ -134,6 +149,7 @@ void LaunchOMP(InputInfo* input, OutputInfo* output, MCG59* randomGenerator, int
         for (int j = 0; j < output->gridSize; ++j)
         {
             output->absorption[j] += threadOutputs[i].absorption[j];
+            output->scattering[j] += threadOutputs[i].scattering[j];
         }
     }
 

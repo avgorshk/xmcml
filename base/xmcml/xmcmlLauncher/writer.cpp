@@ -176,11 +176,11 @@ static int WriteSectionSpecularReflectance(FILE* file, double specularReflectanc
     return 0;
 }
 
-static int WriteSectionCommonTrajectories(FILE* file, double* absorption, int gridSize)
+static int WriteSectionAbsorption(FILE* file, double* absorption, int gridSize)
 {
     unsigned long long int written_items;
 
-    unsigned int section_id = MCML_SECTION_COMMON_TRAJECTORIES;
+    unsigned int section_id = MCML_SECTION_ABSORPTION;
     written_items = fwrite(&section_id, sizeof(unsigned int), 1, file);
     if (written_items < 1)
         return -1;
@@ -195,6 +195,31 @@ static int WriteSectionCommonTrajectories(FILE* file, double* absorption, int gr
         return -1;
 
     written_items = fwrite(absorption, sizeof(double), gridSize, file);
+    if (written_items < gridSize)
+        return -1;
+
+    return 0;
+}
+
+static int WriteSectionScattering(FILE* file, double* scattering, int gridSize)
+{
+    unsigned long long int written_items;
+
+    unsigned int section_id = MCML_SECTION_SCATTERING;
+    written_items = fwrite(&section_id, sizeof(unsigned int), 1, file);
+    if (written_items < 1)
+        return -1;
+
+    unsigned int section_lenght = sizeof(int) + gridSize * sizeof(double);
+    written_items = fwrite(&section_lenght, sizeof(unsigned int), 1, file);
+    if (written_items < 1)
+        return -1;
+
+    written_items = fwrite(&gridSize, sizeof(int), 1, file);
+    if (written_items < 1)
+        return -1;
+
+    written_items = fwrite(scattering, sizeof(double), gridSize, file);
     if (written_items < gridSize)
         return -1;
 
@@ -426,7 +451,9 @@ bool WriteOutputToFile(InputInfo* input, OutputInfo* output, char* fileName)
         return false;
     if (WriteSectionSpecularReflectance(file, output->specularReflectance) != 0)
         return false;
-    if (WriteSectionCommonTrajectories(file, output->absorption, output->gridSize) != 0)
+    if (WriteSectionAbsorption(file, output->absorption, output->gridSize) != 0)
+        return false;
+    if (WriteSectionScattering(file, output->scattering, output->gridSize) != 0)
         return false;
     if (WriteSectionDetectorWeights(file, weightInDetector, output->numberOfDetectors) != 0)
         return false;
@@ -473,7 +500,9 @@ bool WriteBackupToFile(InputInfo* input, OutputInfo* output, MCG59* randomGenera
         return false;
     if (WriteSectionSpecularReflectance(file, output->specularReflectance) != 0)
         return false;
-    if (WriteSectionCommonTrajectories(file, output->absorption, output->gridSize) != 0)
+    if (WriteSectionAbsorption(file, output->absorption, output->gridSize) != 0)
+        return false;
+    if (WriteSectionScattering(file, output->scattering, output->gridSize) != 0)
         return false;
     if (WriteSectionDetectorWeights(file, weightInDetector, output->numberOfDetectors) != 0)
         return false;

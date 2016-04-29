@@ -31,11 +31,11 @@ void ComputeStepSizeInTissue(PhotonState* photon, InputInfo* info, MCG59* random
 void ComputeDroppedWeightOfPhoton(PhotonState* photon, InputInfo* input, OutputInfo* output, int droppedIndex);
 double GetCriticalCos(LayerInfo* layer, int currectLayerId, int intersectionLayerId);
 void UpdateWeightInDetector(OutputInfo* output, double photonWeight, int detectorId);
-void UpdatePhotonTrajectory(PhotonState* photon, InputInfo* input, PhotonTrajectory* trajectory, 
+void UpdatePhotonTrajectory(PhotonState* photon, InputInfo* input, double* scattering, PhotonTrajectory* trajectory, 
     double3 previousPhotonPosition);
 void UpdateDetectorTrajectory(OutputInfo* output, Area* area, PhotonTrajectory* trajectory, int detectorId);
-void MovePhotonAndUpdateTrajectory(PhotonState* photon, InputInfo* input, PhotonTrajectory* trajectory);
-void MovePhotonOnMinDistanceAndUpdateTrajectory(PhotonState* photon, InputInfo* input, PhotonTrajectory* trajectory);
+void MovePhotonAndUpdateTrajectory(PhotonState* photon, InputInfo* input, double* scattering, PhotonTrajectory* trajectory);
+void MovePhotonOnMinDistanceAndUpdateTrajectory(PhotonState* photon, InputInfo* input, double* scattering, PhotonTrajectory* trajectory);
 void UpdateDetectorTimeScale(OutputInfo* output, PhotonState* photon, int detectorId);
 int GetDetectorId(PhotonState* photon, InputInfo* input);
 int GetWeightTableIndex(InputInfo* input, double anisotropy);

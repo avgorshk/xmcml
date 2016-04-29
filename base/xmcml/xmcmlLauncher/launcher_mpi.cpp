@@ -199,6 +199,7 @@ void SendRandomGeneratorToAll(MCG59** randomGenerator, int numThreadsPerProcess,
 void ReceiveOutputFromAll(OutputInfo* output, int pid)
 {
     double* absorption = NULL;
+    double* scattering = NULL;
     double weightInDetector = 0;
     uint64* trajectory = NULL;
     uint64 numberOfPhotonsPerDetector = 0;
@@ -214,15 +215,21 @@ void ReceiveOutputFromAll(OutputInfo* output, int pid)
     if (pid == 0)
     {
         absorption = new double[output->gridSize];
+        scattering = new double[output->gridSize];
     }
 
     MPI_Reduce(output->absorption, absorption, output->gridSize, 
+        MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(output->scattering, scattering, output->gridSize,
         MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if (pid == 0)
     {
         delete[] output->absorption;
         output->absorption = absorption;
+
+        delete[] output->scattering;
+        output->scattering = scattering;
     }
 
     for (int i = 0; i < output->numberOfDetectors; ++i)
@@ -239,7 +246,7 @@ void ReceiveOutputFromAll(OutputInfo* output, int pid)
             MPI_UNSIGNED_LONG_LONG, ullSumOp, 0, MPI_COMM_WORLD);
         MPI_Reduce(&(output->detectorInfo[i].numberOfPhotons), &numberOfPhotonsPerDetector, 1,
             MPI_UNSIGNED_LONG_LONG, ullSumOp, 0, MPI_COMM_WORLD);
-		MPI_Reduce(&(output->detectorInfo[i].targetWeight), &targetWeightPerDetector, 1,
+        MPI_Reduce(&(output->detectorInfo[i].targetWeight), &targetWeightPerDetector, 1,
 			MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
         if (pid == 0)
@@ -329,6 +336,7 @@ void DoBackup(InputInfo* input, OutputInfo* output, MCG59* randomGenerator, int 
         output->numberOfPhotons = 0;
         output->specularReflectance = 0.0;
         memset(output->absorption, 0, output->gridSize * sizeof(double));
+        memset(output->scattering, 0, output->gridSize * sizeof(double));
         for (int i = 0; i < output->numberOfDetectors; ++i)
         {
 			output->detectorInfo[i].weight = 0;

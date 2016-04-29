@@ -58,7 +58,7 @@ void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* out
             if (intersection.isFindIntersection)
             {
                 photon.step = intersection.distance - 0.01 * MIN_DISTANCE;
-                MovePhotonAndUpdateTrajectory(&photon, input, trajectory);
+                MovePhotonAndUpdateTrajectory(&photon, input, output->scattering, trajectory);
                 
                 int areaIndex = GetAreaIndex(photon.position, input->area);
                 if (areaIndex >= 0)
@@ -85,7 +85,7 @@ void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* out
             if (intersection.isFindIntersection)
             {
                 photon.step = intersection.distance - 0.01 * MIN_DISTANCE;   
-                MovePhotonAndUpdateTrajectory(&photon, input, trajectory);
+                MovePhotonAndUpdateTrajectory(&photon, input, output->scattering, trajectory);
 
                 int areaIndex = GetAreaIndex(photon.position, input->area);
                 if (areaIndex >= 0)
@@ -99,7 +99,7 @@ void ComputePhoton(double specularReflectance, InputInfo* input, OutputInfo* out
             }
             else
             {
-                MovePhotonAndUpdateTrajectory(&photon, input, trajectory);
+                MovePhotonAndUpdateTrajectory(&photon, input, output->scattering, trajectory);
 
                 int areaIndex = GetAreaIndex(photon.position, input->area);
                 if (areaIndex >= 0)
@@ -155,7 +155,7 @@ void MovePhoton(PhotonState* photon)
     photon->position.z += photon->step * photon->direction.z;
 }
 
-void MovePhotonAndUpdateTrajectory(PhotonState* photon, InputInfo* input, PhotonTrajectory* trajectory)
+void MovePhotonAndUpdateTrajectory(PhotonState* photon, InputInfo* input, double* scattering, PhotonTrajectory* trajectory)
 {
     double3 previousPhotonPosition = photon->position;
 	photon->time += photon->step*input->layerInfo[photon->layerId].refractiveIndex;
@@ -170,7 +170,7 @@ void MovePhotonAndUpdateTrajectory(PhotonState* photon, InputInfo* input, Photon
 	}
 
     MovePhoton(photon);
-    UpdatePhotonTrajectory(photon, input, trajectory, previousPhotonPosition);
+    UpdatePhotonTrajectory(photon, input, scattering, trajectory, previousPhotonPosition);
 }
 
 void MovePhotonOnMinDistance(PhotonState* photon)
@@ -180,30 +180,11 @@ void MovePhotonOnMinDistance(PhotonState* photon)
     photon->position.z += MIN_DISTANCE * photon->direction.z;
 }
 
-void MovePhotonOnMinDistanceAndUpdateTrajectory(PhotonState* photon, InputInfo* input, PhotonTrajectory* trajectory)
+void MovePhotonOnMinDistanceAndUpdateTrajectory(PhotonState* photon, InputInfo* input, double* scattering, PhotonTrajectory* trajectory)
 {
     double3 previousPhotonPosition = photon->position;
     MovePhotonOnMinDistance(photon);
-    UpdatePhotonTrajectory(photon, input, trajectory, previousPhotonPosition);
-}
-
-int GetAreaIndex(double3 photonPosition, Area* area)
-{	
-    double indexX = area->partitionNumber.x * (photonPosition.x - area->corner.x) / area->length.x;
-    double indexY = area->partitionNumber.y * (photonPosition.y - area->corner.y) / area->length.y;
-    double indexZ = area->partitionNumber.z * (photonPosition.z - area->corner.z) / area->length.z;
-	
-    bool isNotPhotonInArea = (indexX < 0.0 || indexX >= area->partitionNumber.x) || 
-        (indexY < 0.0 || indexY >= area->partitionNumber.y) ||
-        (indexZ < 0.0 || indexZ >= area->partitionNumber.z);
-    
-    if (isNotPhotonInArea)
-	{
-		return -1;
-	}
-	
-	return (int)indexX * area->partitionNumber.y * area->partitionNumber.z + 
-        (int)indexY * area->partitionNumber.z + (int)indexZ;
+    UpdatePhotonTrajectory(photon, input, scattering, trajectory, previousPhotonPosition);
 }
 
 byte3 GetAreaIndexVector(double3 photonPosition, Area* area)
@@ -229,6 +210,20 @@ byte3 GetAreaIndexVector(double3 photonPosition, Area* area)
 	}
 	
     return result;
+}
+
+int GetAreaIndex(double3 photonPosition, Area* area)
+{
+    byte3 areaIndexVector = GetAreaIndexVector(photonPosition, area);
+
+    bool isNotPhotonInArea = ((areaIndexVector.x == 255) && (areaIndexVector.y == 255) && (areaIndexVector.z == 255));
+    if (isNotPhotonInArea)
+    {
+        return -1;
+    }
+
+    return areaIndexVector.x * area->partitionNumber.y * area->partitionNumber.z +
+        areaIndexVector.y * area->partitionNumber.z + areaIndexVector.z;
 }
 
 void CrossBoundary(PhotonState* photon, InputInfo* input, OutputInfo* output, 
@@ -278,13 +273,13 @@ void CrossBoundary(PhotonState* photon, InputInfo* input, OutputInfo* output,
                 intersection->normal);
             photon->layerId = intersectionLayerId;
 			photon->visitedLayers[photon->layerId] = true;
-            MovePhotonOnMinDistanceAndUpdateTrajectory(photon, input, trajectory);
+            MovePhotonOnMinDistanceAndUpdateTrajectory(photon, input, output->scattering, trajectory);
         }
     }
     else //reflection
     {
         photon->direction = ReflectVector(photon->direction, intersection->normal);
-        MovePhotonOnMinDistanceAndUpdateTrajectory(photon, input, trajectory);
+        MovePhotonOnMinDistanceAndUpdateTrajectory(photon, input, output->scattering, trajectory);
     }
 }
 
@@ -643,7 +638,7 @@ void ComputeDroppedWeightOfPhoton(PhotonState* photon, InputInfo* input, OutputI
 	double deltaWeight = photon->weight * absorptionCoefficient / (absorptionCoefficient + scatteringCoefficient);
 
 	photon->weight -= deltaWeight;
-    output->absorption[droppedIndex] += 1.0 / scatteringCoefficient;
+    output->absorption[droppedIndex] += deltaWeight;
 }
 
 double GetCriticalCos(LayerInfo* layer, int currectLayerId, int intersectionLayerId)
@@ -752,7 +747,7 @@ void UpdateWeightInDetector(OutputInfo* output, double photonWeight, int detecto
 	output->detectorInfo[detectorId].weight += photonWeight;
 }
 
-void UpdatePhotonTrajectory(PhotonState* photon, InputInfo* input, PhotonTrajectory* trajectory, 
+void UpdatePhotonTrajectory(PhotonState* photon, InputInfo* input, double* scattering, PhotonTrajectory* trajectory, 
     double3 previousPhotonPosition)
 {
     double3 startPosition, finishPosition;
@@ -778,8 +773,9 @@ void UpdatePhotonTrajectory(PhotonState* photon, InputInfo* input, PhotonTraject
     {
         double3 intersectionPoint = GetPlaneSegmentIntersectionPoint(startPosition, finishPosition, plane);
         
+        int scatteringIndex = GetAreaIndex(intersectionPoint, input->area);
         byte3 areaIndexVector = GetAreaIndexVector(intersectionPoint, input->area);
-        if (areaIndexVector.x == 255 && areaIndexVector.y == 255 && areaIndexVector.z == 255)
+        if ((areaIndexVector.x == 255 && areaIndexVector.y == 255 && areaIndexVector.z == 255) || scatteringIndex == -1)
             break;
 
         assert(trajectory->position < MAX_TRAJECTORY_SIZE);
@@ -789,6 +785,8 @@ void UpdatePhotonTrajectory(PhotonState* photon, InputInfo* input, PhotonTraject
         trajectory->z[trajectory->position] = areaIndexVector.z;
         ++(trajectory->position);
         
+        scattering[scatteringIndex] += photon->weight;
+
         plane += step;
     }
 }

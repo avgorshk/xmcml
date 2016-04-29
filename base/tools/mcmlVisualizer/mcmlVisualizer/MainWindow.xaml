@@ -25,6 +25,10 @@
                 <MenuItem Header="Save all as a text..." Click="MenuItem_SaveAsText_Click"/>
                 <MenuItem Header="Exit" Click="MainMenu_Exit_Click" />
             </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem Header="Absorption" Click="MenuItem_ViewAbsorption"/>
+                <MenuItem Header="Scattering" Click="MenuItem_ViewScattering"/>
+            </MenuItem>
             <MenuItem Header="Detectors" />
             <MenuItem Header="Save trajectory maps">
                 <MenuItem Header="XY" Click="MenuItem_XY_Click" />

@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Win32;
+using System.Globalization;
 
 namespace mcmlVisualizer
 {
@@ -59,45 +60,20 @@ namespace mcmlVisualizer
                 {
                     throw new Exception("File is incorrect");
                 }
-                
+
                 SetInformation(parser);
 
                 int numberOfDetectors = parser.GetNumberOfDetectors();
-                ((MenuItem)MainMenu.Items[1]).Items.Clear();
+                ((MenuItem)MainMenu.Items[2]).Items.Clear();
                 for (int i = 0; i < numberOfDetectors; ++i)
                 {
                     MenuItem item = new MenuItem();
                     item.Header = i.ToString();
                     item.Click += new RoutedEventHandler(item_Click);
-                    ((MenuItem)MainMenu.Items[1]).Items.Add(item);
+                    ((MenuItem)MainMenu.Items[2]).Items.Add(item);
                 }
-                
-                trajectoryBox = new TrajectoryBox(parser.GetArea(), parser.GetTrajectories());
-                scaledCoefficient = ComputeScaledCoefficient();
 
-                double stepSizeX = trajectoryBox.area.length.x / trajectoryBox.area.partitionNumber.x;
-                sliderX.Minimum = trajectoryBox.area.corner.x + stepSizeX / 2.0;
-                sliderX.Maximum = trajectoryBox.area.corner.x + trajectoryBox.area.length.x - stepSizeX / 2.0;
-                sliderX.Value = (sliderX.Maximum + sliderX.Minimum) / 2.0;
-                sliderX.TickFrequency = stepSizeX;
-                sliderX.ToolTip = sliderX.Value.ToString();
-                PaintYZ(sliderX.Value);
-
-                double stepSizeY = trajectoryBox.area.length.y / trajectoryBox.area.partitionNumber.y;
-                sliderY.Minimum = trajectoryBox.area.corner.y + stepSizeY / 2.0;
-                sliderY.Maximum = trajectoryBox.area.corner.y + trajectoryBox.area.length.y - stepSizeY / 2.0;
-                sliderY.Value = (sliderY.Maximum + sliderY.Minimum) / 2.0;
-                sliderY.TickFrequency = stepSizeY;
-                sliderY.ToolTip = sliderY.Value.ToString();
-                PaintXZ(sliderY.Value);
-
-                double stepSizeZ = trajectoryBox.area.length.z / trajectoryBox.area.partitionNumber.z;
-                sliderZ.Minimum = trajectoryBox.area.corner.z + stepSizeZ / 2.0;
-                sliderZ.Maximum = trajectoryBox.area.corner.z + trajectoryBox.area.length.z - stepSizeZ / 2.0;
-                sliderZ.Value = sliderZ.Minimum;
-                sliderZ.TickFrequency = stepSizeZ;
-                sliderZ.ToolTip = sliderZ.Value.ToString();
-                PaintXY(sliderZ.Value);
+                MenuItem_ViewAbsorption(null, null);
             }
             catch (Exception exc)
             {
@@ -155,7 +131,7 @@ namespace mcmlVisualizer
                 totalNumberOfPhotonsInDetectors += numberOfPhotonsPerDetector[i];
             }
 
-            textBoxInformation.Text += "Detectors: (" + totalNumberOfPhotonsInDetectors.ToString() +")\n";
+            textBoxInformation.Text += "Detectors: (" + totalNumberOfPhotonsInDetectors.ToString() + ")\n";
             for (int i = 0; i < weights.Length; ++i)
             {
                 textBoxInformation.Text += "\tDetector " + i.ToString() + ": " + weights[i] / numberOfPhotons;
@@ -186,7 +162,7 @@ namespace mcmlVisualizer
 
             double[] section = trajectoryBox.GetSectionXY(z);
             sectionXY = section;
-            
+
             double height = gridXY.ActualHeight;
             double width = gridXY.ActualWidth;
             double stepX = width / trajectoryBox.area.partitionNumber.x;
@@ -198,9 +174,9 @@ namespace mcmlVisualizer
                 {
                     int index = ix * trajectoryBox.area.partitionNumber.y + iy;
                     double weight = section[index];
-                    if (weight < 1.0) 
+                    if (weight < 1.0)
                         weight = 1.0;
-                    
+
                     SolidColorBrush brush = new SolidColorBrush(
                         GetColor(Math.Log10(weight) / Math.Log10(scaledCoefficient)));
                     Rectangle rectangle = new Rectangle();
@@ -285,6 +261,39 @@ namespace mcmlVisualizer
             }
         }
 
+        private void MenuItem_ViewAbsorption(object sender, RoutedEventArgs e)
+        {
+            if (parser != null)
+            {
+                trajectoryBox = new TrajectoryBox(parser.GetArea(), parser.GetAbsorption());
+                scaledCoefficient = ComputeScaledCoefficient();
+
+                double stepSizeX = trajectoryBox.area.length.x / trajectoryBox.area.partitionNumber.x;
+                sliderX.Minimum = trajectoryBox.area.corner.x + stepSizeX / 2.0;
+                sliderX.Maximum = trajectoryBox.area.corner.x + trajectoryBox.area.length.x - stepSizeX / 2.0;
+                sliderX.Value = (sliderX.Maximum + sliderX.Minimum) / 2.0;
+                sliderX.TickFrequency = stepSizeX;
+                sliderX.ToolTip = sliderX.Value.ToString();
+                PaintYZ(sliderX.Value);
+
+                double stepSizeY = trajectoryBox.area.length.y / trajectoryBox.area.partitionNumber.y;
+                sliderY.Minimum = trajectoryBox.area.corner.y + stepSizeY / 2.0;
+                sliderY.Maximum = trajectoryBox.area.corner.y + trajectoryBox.area.length.y - stepSizeY / 2.0;
+                sliderY.Value = (sliderY.Maximum + sliderY.Minimum) / 2.0;
+                sliderY.TickFrequency = stepSizeY;
+                sliderY.ToolTip = sliderY.Value.ToString();
+                PaintXZ(sliderY.Value);
+
+                double stepSizeZ = trajectoryBox.area.length.z / trajectoryBox.area.partitionNumber.z;
+                sliderZ.Minimum = trajectoryBox.area.corner.z + stepSizeZ / 2.0;
+                sliderZ.Maximum = trajectoryBox.area.corner.z + trajectoryBox.area.length.z - stepSizeZ / 2.0;
+                sliderZ.Value = sliderZ.Minimum;
+                sliderZ.TickFrequency = stepSizeZ;
+                sliderZ.ToolTip = sliderZ.Value.ToString();
+                PaintXY(sliderZ.Value);
+            }
+        }
+
         Color GetColor(double weight)
         {
             if (weight < 0) weight = 0;
@@ -339,16 +348,18 @@ namespace mcmlVisualizer
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
             sfd.Filter = "Text file|*.txt";
+            ulong numberOfPhotons = parser.GetNumberOfPhotons();
 
             if (sfd.ShowDialog() == true)
             {
                 StreamWriter stream = new StreamWriter(sfd.FileName);
-                for (int ix = 0; ix < trajectoryBox.area.partitionNumber.x; ++ix)
+                for (int iy = 0; iy < trajectoryBox.area.partitionNumber.y; ++iy)
                 {
-                    for (int iy = 0; iy < trajectoryBox.area.partitionNumber.y; ++iy)
+                    for (int ix = 0; ix < trajectoryBox.area.partitionNumber.x; ++ix)
                     {
                         int index = ix * trajectoryBox.area.partitionNumber.y + iy;
-                        stream.Write(sectionXY[index]);
+                        double value = sectionXY[index] / numberOfPhotons;
+                        stream.Write(value.ToString("G", CultureInfo.CreateSpecificCulture("en-US")));
                         stream.Write('\t');
                     }
                     stream.WriteLine();
@@ -363,6 +374,7 @@ namespace mcmlVisualizer
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
             sfd.Filter = "Text file|*.txt";
+            ulong numberOfPhotons = parser.GetNumberOfPhotons();
 
             if (sfd.ShowDialog() == true)
             {
@@ -372,7 +384,8 @@ namespace mcmlVisualizer
                     for (int ix = 0; ix < trajectoryBox.area.partitionNumber.x; ++ix)
                     {
                         int index = ix * trajectoryBox.area.partitionNumber.z + iz;
-                        stream.Write(sectionXZ[index]);
+                        double value = sectionXZ[index] / numberOfPhotons;
+                        stream.Write(value.ToString("G", CultureInfo.CreateSpecificCulture("en-US")));
                         stream.Write('\t');
                     }
                     stream.WriteLine();
@@ -387,6 +400,7 @@ namespace mcmlVisualizer
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = "txt";
             sfd.Filter = "Text file|*.txt";
+            ulong numberOfPhotons = parser.GetNumberOfPhotons();
 
             if (sfd.ShowDialog() == true)
             {
@@ -396,7 +410,8 @@ namespace mcmlVisualizer
                     for (int iy = 0; iy < trajectoryBox.area.partitionNumber.y; ++iy)
                     {
                         int index = iy * trajectoryBox.area.partitionNumber.z + iz;
-                        stream.Write(sectionYZ[index]);
+                        double value = sectionYZ[index] / numberOfPhotons;
+                        stream.Write(value.ToString("G", CultureInfo.CreateSpecificCulture("en-US")));
                         stream.Write('\t');
                     }
                     stream.WriteLine();
@@ -422,7 +437,7 @@ namespace mcmlVisualizer
                     writer.WriteLine(weight / numberOfPhotons);
                 }
                 writer.Flush();
-                writer.Close();    
+                writer.Close();
             }
         }
 
@@ -703,6 +718,39 @@ namespace mcmlVisualizer
 
                 writer.Flush();
                 writer.Close();
+            }
+        }
+
+        private void MenuItem_ViewScattering(object sender, RoutedEventArgs e)
+        {
+            if (parser != null)
+            {
+                trajectoryBox = new TrajectoryBox(parser.GetArea(), parser.GetScattering());
+                scaledCoefficient = ComputeScaledCoefficient();
+
+                double stepSizeX = trajectoryBox.area.length.x / trajectoryBox.area.partitionNumber.x;
+                sliderX.Minimum = trajectoryBox.area.corner.x + stepSizeX / 2.0;
+                sliderX.Maximum = trajectoryBox.area.corner.x + trajectoryBox.area.length.x - stepSizeX / 2.0;
+                sliderX.Value = (sliderX.Maximum + sliderX.Minimum) / 2.0;
+                sliderX.TickFrequency = stepSizeX;
+                sliderX.ToolTip = sliderX.Value.ToString();
+                PaintYZ(sliderX.Value);
+
+                double stepSizeY = trajectoryBox.area.length.y / trajectoryBox.area.partitionNumber.y;
+                sliderY.Minimum = trajectoryBox.area.corner.y + stepSizeY / 2.0;
+                sliderY.Maximum = trajectoryBox.area.corner.y + trajectoryBox.area.length.y - stepSizeY / 2.0;
+                sliderY.Value = (sliderY.Maximum + sliderY.Minimum) / 2.0;
+                sliderY.TickFrequency = stepSizeY;
+                sliderY.ToolTip = sliderY.Value.ToString();
+                PaintXZ(sliderY.Value);
+
+                double stepSizeZ = trajectoryBox.area.length.z / trajectoryBox.area.partitionNumber.z;
+                sliderZ.Minimum = trajectoryBox.area.corner.z + stepSizeZ / 2.0;
+                sliderZ.Maximum = trajectoryBox.area.corner.z + trajectoryBox.area.length.z - stepSizeZ / 2.0;
+                sliderZ.Value = sliderZ.Minimum;
+                sliderZ.TickFrequency = stepSizeZ;
+                sliderZ.ToolTip = sliderZ.Value.ToString();
+                PaintXY(sliderZ.Value);
             }
         }
     }

@@ -13,12 +13,13 @@ namespace mcmlVisualizer
         private const uint MCML_SECTION_AREA = 2;
         private const uint MCML_SECTION_CUBE_DETECTORS = 3;
         private const uint MCML_SECTION_SPECULAR_REFLECTANCE = 4;
-        private const uint MCML_SECTION_COMMON_TRAJECTORIES = 5;
+        private const uint MCML_SECTION_ABSORPTION = 5;
         private const uint MCML_SECTION_DETECTOR_WEIGHTS = 6;
         private const uint MCML_SECTION_DETECTOR_TRAJECTORIES = 7;
         private const uint MCML_SECTION_DETECTOR_TIME_SCALE = 8;
         private const uint MCML_SECTION_RING_DETECTORS = 10;
         private const uint MCML_SECTION_DETECTOR_RANGES = 11;
+        private const uint MCML_SECTION_SCATTERING = 12;
 
         private FileStream file;
         private Hashtable sections;
@@ -32,6 +33,7 @@ namespace mcmlVisualizer
         private UInt64[] numPhotonsInDetector = new UInt64[0];
 
         private double[] absorptionMap = new double[0];
+        private double[] scatteringMap = new double[0];
 
         static public Parser getInstance(string fileName)
         {
@@ -127,16 +129,29 @@ namespace mcmlVisualizer
             reader.BaseStream.Seek(offset, SeekOrigin.Begin);
             specularReflecrance = reader.ReadDouble();
 
-            // MCML_SECTION_COMMON_TRAJECTORIES
-            if (sections.ContainsKey(MCML_SECTION_COMMON_TRAJECTORIES))
+            // MCML_SECTION_ABSORPTION
+            if (sections.ContainsKey(MCML_SECTION_ABSORPTION))
             {
-                offset = (uint)this.sections[MCML_SECTION_COMMON_TRAJECTORIES];
+                offset = (uint)this.sections[MCML_SECTION_ABSORPTION];
                 reader.BaseStream.Seek(offset, SeekOrigin.Begin);
                 int size = reader.ReadInt32();
                 absorptionMap = new double[size];
                 for (int i = 0; i < size; ++i)
                 {
                     absorptionMap[i] = reader.ReadDouble();
+                }
+            }
+
+            // MCML_SECTION_SCATTERING
+            if (sections.ContainsKey(MCML_SECTION_SCATTERING))
+            {
+                offset = (uint)this.sections[MCML_SECTION_SCATTERING];
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                int size = reader.ReadInt32();
+                scatteringMap = new double[size];
+                for (int i = 0; i < size; ++i)
+                {
+                    scatteringMap[i] = reader.ReadDouble();
                 }
             }
 
@@ -214,9 +229,14 @@ namespace mcmlVisualizer
             return detectorTargetRanges;
         }
 
-        public double[] GetTrajectories()
+        public double[] GetAbsorption()
         {
             return absorptionMap;
+        }
+
+        public double[] GetScattering()
+        {
+            return scatteringMap;
         }
 
         public UInt64[] GetDetectorTrajectories(int detectorId)
